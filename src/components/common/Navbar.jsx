@@ -46,14 +46,7 @@ export default function Navbar() {
     { name: "About Us", href: "/about" },
   ];
 
-  if (user) {
-    navLinks.splice(2, 0, 
-      { name: "Dashboard", href: "/dashboard" },
-      { name: "Add Property", href: "/items/add" }
-    );
-  }
-
-  const isActive = (path) => pathname === path || (path === "/dashboard" && pathname.startsWith("/dashboard"));
+  const isActive = (path) => pathname === path;
 
   return (
     <header
@@ -86,7 +79,7 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
+          {/* Clean Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-1 bg-[var(--bg-card-subtle)] p-1.5 rounded-full border border-[var(--border-color)]">
             {navLinks.map((link) => (
               <Link
@@ -103,7 +96,7 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* User Auth Buttons + Theme Toggle */}
+          {/* User Auth Controls & Profile Dropdown */}
           <div className="hidden md:flex items-center gap-3">
             {/* Dark/Light Theme Toggle Button */}
             <motion.button
@@ -151,12 +144,12 @@ export default function Navbar() {
                     </div>
                   </li>
                   <li>
-                    <Link href="/dashboard" className="py-2.5 hover:bg-[var(--bg-card-subtle)] rounded-xl">
+                    <Link href="/dashboard" className="py-2.5 hover:bg-[var(--bg-card-subtle)] rounded-xl flex items-center gap-2">
                       <HiSquares2X2 className="w-4 h-4 text-teal-500" /> My Dashboard
                     </Link>
                   </li>
                   <li>
-                    <Link href="/items/add" className="py-2.5 hover:bg-[var(--bg-card-subtle)] rounded-xl">
+                    <Link href="/items/add" className="py-2.5 hover:bg-[var(--bg-card-subtle)] rounded-xl flex items-center gap-2">
                       <Plus className="w-4 h-4 text-amber-500" /> Add Property
                     </Link>
                   </li>
@@ -220,7 +213,7 @@ export default function Navbar() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
+                    d="M6 18L18 6"
                   />
                 ) : (
                   <path
@@ -236,7 +229,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer Menu with AnimatePresence */}
+      {/* Mobile Drawer Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -266,6 +259,13 @@ export default function Navbar() {
                   <p className="font-semibold text-[var(--text-main)]">{user.name}</p>
                   <p className="text-xs text-[var(--text-muted)]">{user.email}</p>
                 </div>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-3 rounded-xl text-white bg-teal-600 font-medium flex items-center justify-center gap-2"
+                >
+                  <HiSquares2X2 className="w-5 h-5" /> My Dashboard
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="w-full text-center py-3 rounded-xl text-red-500 bg-red-500/10 font-medium flex items-center justify-center gap-2"
