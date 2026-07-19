@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "framer-motion";
+
 const STEPS = [
   {
     num: "01",
@@ -19,11 +23,30 @@ const STEPS = [
   },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
+const stepVariants = {
+  hidden: { opacity: 0, scale: 0.9, y: 20 },
+  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5 } },
+};
+
 export default function HowItWorks() {
   return (
     <section className="py-20 bg-[var(--bg-main)] border-t border-[var(--border-color)] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center max-w-2xl mx-auto mb-16"
+        >
           <span className="text-teal-500 font-semibold text-sm tracking-wider uppercase">
             Simple Process
           </span>
@@ -33,12 +56,20 @@ export default function HowItWorks() {
           <p className="text-[var(--text-muted)] text-sm mt-2">
             Three simple steps to finding, evaluating, and securing your next real estate investment.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 relative"
+        >
           {STEPS.map((step) => (
-            <div
+            <motion.div
               key={step.num}
+              variants={stepVariants}
+              whileHover={{ y: -6 }}
               className="bg-[var(--bg-card)] border border-[var(--border-color)] p-8 rounded-3xl relative hover:border-teal-500/40 transition-colors shadow-md"
             >
               <div className="flex items-center justify-between mb-6">
@@ -53,9 +84,9 @@ export default function HowItWorks() {
               <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                 {step.desc}
               </p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

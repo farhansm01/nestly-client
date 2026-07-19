@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { ChevronDown, Plus } from "@gravity-ui/icons";
@@ -51,9 +52,13 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-teal-900/30 group-hover:scale-105 transition-transform">
+            <motion.div
+              whileHover={{ scale: 1.08, rotate: 3 }}
+              transition={{ type: "spring", stiffness: 400 }}
+              className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-teal-900/30"
+            >
               <HiBuildingOffice2 className="w-6 h-6" />
-            </div>
+            </motion.div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
                 <span className="text-2xl font-bold tracking-tight text-[var(--text-main)]">
@@ -86,7 +91,8 @@ export default function Navbar() {
           {/* User Auth Buttons + Theme Toggle */}
           <div className="hidden md:flex items-center gap-3">
             {/* Dark/Light Theme Toggle Button */}
-            <button
+            <motion.button
+              whileTap={{ scale: 0.9, rotate: 15 }}
               onClick={toggleTheme}
               className="p-2.5 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-teal-500/50 transition-all"
               title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
@@ -97,7 +103,7 @@ export default function Navbar() {
               ) : (
                 <HiMoon className="w-5 h-5 text-teal-600" />
               )}
-            </button>
+            </motion.button>
 
             {isPending ? (
               <div className="w-24 h-9 bg-[var(--bg-card-subtle)] animate-pulse rounded-lg" />
@@ -152,19 +158,22 @@ export default function Navbar() {
                 >
                   Sign In
                 </Link>
-                <Link
-                  href="/register"
-                  className="btn btn-sm bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 border-none text-white font-medium rounded-xl px-5 shadow-md shadow-teal-900/30"
-                >
-                  Get Started
-                </Link>
+                <motion.div whileTap={{ scale: 0.96 }}>
+                  <Link
+                    href="/register"
+                    className="btn btn-sm bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 border-none text-white font-medium rounded-xl px-5 shadow-md shadow-teal-900/30"
+                  >
+                    Get Started
+                  </Link>
+                </motion.div>
               </>
             )}
           </div>
 
           {/* Mobile Menu Button + Theme Toggle */}
           <div className="flex md:hidden items-center gap-2">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.9, rotate: 15 }}
               onClick={toggleTheme}
               className="p-2.5 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)]"
               aria-label="Toggle Theme"
@@ -174,7 +183,7 @@ export default function Navbar() {
               ) : (
                 <HiMoon className="w-5 h-5 text-teal-600" />
               )}
-            </button>
+            </motion.button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2.5 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)]"
@@ -207,43 +216,51 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-[var(--bg-main)] border-b border-[var(--border-color)] px-4 pt-3 pb-6 space-y-3">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`block px-4 py-3 rounded-xl text-base font-medium transition-colors ${
-                isActive(link.href)
-                  ? "bg-teal-600 text-white"
-                  : "text-[var(--text-muted)] hover:bg-[var(--bg-card-subtle)] hover:text-[var(--text-main)]"
-              }`}
-            >
-              {link.name}
-            </Link>
-          ))}
-          {!user && (
-            <div className="pt-4 border-t border-[var(--border-color)] flex flex-col gap-2.5">
+      {/* Mobile Drawer Menu with AnimatePresence */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="md:hidden bg-[var(--bg-main)] border-b border-[var(--border-color)] px-4 pt-3 pb-6 space-y-3 overflow-hidden"
+          >
+            {navLinks.map((link) => (
               <Link
-                href="/login"
+                key={link.href}
+                href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center py-3 rounded-xl text-[var(--text-main)] bg-[var(--bg-card-subtle)] font-medium"
+                className={`block px-4 py-3 rounded-xl text-base font-medium transition-colors ${
+                  isActive(link.href)
+                    ? "bg-teal-600 text-white"
+                    : "text-[var(--text-muted)] hover:bg-[var(--bg-card-subtle)] hover:text-[var(--text-main)]"
+                }`}
               >
-                Sign In
+                {link.name}
               </Link>
-              <Link
-                href="/register"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center py-3 rounded-xl text-white bg-teal-600 font-medium"
-              >
-                Get Started
-              </Link>
-            </div>
-          )}
-        </div>
-      )}
+            ))}
+            {!user && (
+              <div className="pt-4 border-t border-[var(--border-color)] flex flex-col gap-2.5">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-3 rounded-xl text-[var(--text-main)] bg-[var(--bg-card-subtle)] font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-3 rounded-xl text-white bg-teal-600 font-medium"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Star } from "@gravity-ui/icons";
 
 const TESTIMONIALS = [
@@ -24,11 +27,30 @@ const TESTIMONIALS = [
   },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 25 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
+
 export default function TestimonialsSection() {
   return (
     <section className="py-20 bg-[var(--bg-main)] border-t border-[var(--border-color)] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center max-w-2xl mx-auto mb-16"
+        >
           <span className="text-teal-500 font-semibold text-sm tracking-wider uppercase">
             User Stories
           </span>
@@ -38,12 +60,20 @@ export default function TestimonialsSection() {
           <p className="text-[var(--text-muted)] text-sm mt-2">
             See how Nestly's AI real estate platform helps people make confident decisions.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
           {TESTIMONIALS.map((t) => (
-            <div
+            <motion.div
               key={t.name}
+              variants={cardVariants}
+              whileHover={{ y: -6 }}
               className="bg-[var(--bg-card)] border border-[var(--border-color)] p-8 rounded-3xl flex flex-col justify-between hover:border-teal-500/40 transition-colors shadow-lg"
             >
               <div className="space-y-4">
@@ -68,9 +98,9 @@ export default function TestimonialsSection() {
                   <p className="text-[var(--text-muted)] text-xs">{t.role}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

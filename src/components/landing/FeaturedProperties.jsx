@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { HiMapPin, HiSparkles } from "react-icons/hi2";
 import { Star } from "@gravity-ui/icons";
 
@@ -57,11 +60,36 @@ const FEATURED_PROPERTIES = [
   },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+};
+
 export default function FeaturedProperties() {
   return (
     <section id="featured" className="py-20 bg-[var(--bg-main)] border-t border-[var(--border-color)] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4"
+        >
           <div>
             <span className="text-teal-500 font-semibold text-sm tracking-wider uppercase flex items-center gap-1">
               <HiSparkles className="w-4 h-4 text-amber-500" /> Handpicked Selection
@@ -76,21 +104,30 @@ export default function FeaturedProperties() {
           >
             View All Properties
           </Link>
-        </div>
+        </motion.div>
 
-        {/* Responsive Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Responsive Grid with Framer Motion Stagger */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
           {FEATURED_PROPERTIES.map((property) => (
-            <div
+            <motion.div
               key={property.id}
-              className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden hover:border-teal-500/50 transition-all duration-300 flex flex-col group shadow-lg"
+              variants={cardVariants}
+              whileHover={{ y: -8 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden hover:border-teal-500/50 transition-colors duration-300 flex flex-col group shadow-lg"
             >
               {/* Image Container */}
               <div className="relative h-48 w-full overflow-hidden bg-slate-800">
                 <img
                   src={property.image}
                   alt={property.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
                 />
                 <div className="absolute top-3 left-3 bg-slate-900/90 text-teal-300 border border-teal-500/30 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 backdrop-blur-md">
                   <HiSparkles className="w-3 h-3 text-amber-400" /> {property.aiMatch}
@@ -134,9 +171,9 @@ export default function FeaturedProperties() {
                   View Details
                 </Link>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
