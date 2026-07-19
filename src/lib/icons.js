@@ -3,7 +3,6 @@
  */
 export {
   House,
-  MagnifyingGlass,
   User,
   Star,
   Check,
@@ -20,4 +19,5 @@ export {
   HiCurrencyDollar,
   HiFunnel,
   HiSparkles,
+  HiMagnifyingGlass,
 } from "react-icons/hi2";

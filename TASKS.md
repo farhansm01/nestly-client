@@ -13,20 +13,20 @@
       + neutral, define as DaisyUI theme tokens
 - [x] T04: Install and configure Gravity UI icons + react-icons
 - [x] T05: Install and configure react-toast, wire a global toast provider
-- [ ] T06: Install BetterAuth client (`1.6.11`, `--legacy-peer-deps`),
+- [x] T06: Install BetterAuth client (`1.6.11`, `--legacy-peer-deps`),
       configure base client pointing at server's auth endpoints
-- [ ] T07: Build shared layout shell — root layout with toast provider,
+- [x] T07: Build shared layout shell — root layout with toast provider,
       auth context provider
 
 ## Phase 2 — Navbar, Footer, Landing Page
-- [ ] T08: Navbar — sticky/fixed, min 3 routes logged out / 5 logged in,
+- [x] T08: Navbar — sticky/fixed, min 3 routes logged out / 5 logged in,
       responsive (mobile menu)
-- [ ] T09: Hero section — 60–70% viewport height, interactive element
+- [x] T09: Hero section — 60–70% viewport height, interactive element
       (slider/animation/CTA), clear scroll cue to next section
-- [ ] T10: Build remaining 6+ landing sections (Featured Properties,
+- [x] T10: Build remaining 6+ landing sections (Featured Properties,
       How It Works, Categories/Property Types, Stats, Testimonials,
       Neighborhood Highlights, Newsletter/CTA — pick 6+)
-- [ ] T11: Footer — working internal links, contact info, social links
+- [x] T11: Footer — working internal links, contact info, social links
 
 ## Phase 3 — Auth Pages
 - [ ] T12: Login page — form, validation, error handling

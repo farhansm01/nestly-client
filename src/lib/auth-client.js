@@ -1,0 +1,18 @@
+import { createAuthClient } from "better-auth/react";
+
+/**
+ * BetterAuth Client Configuration for nestly-client
+ * Pinned to v1.6.11 as per AGENTS.md requirements
+ */
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000",
+});
+
+export const {
+  useSession,
+  signIn,
+  signOut,
+  signUp,
+} = authClient;
+
+export default authClient;
