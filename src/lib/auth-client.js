@@ -5,7 +5,11 @@ import { createAuthClient } from "better-auth/react";
  * Pinned to v1.6.11 as per AGENTS.md requirements
  */
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000",
+  baseURL:
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    "http://localhost:5000",
 });
 
 export const {

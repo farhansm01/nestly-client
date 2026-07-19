@@ -3,7 +3,10 @@
  * Connects to the Nestly backend server using process.env.NEXT_PUBLIC_SERVER_URL
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SERVER_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  "http://localhost:5000";
 
 export async function fetcher(endpoint, options = {}) {
   const { headers, query, body, ...customConfig } = options;
