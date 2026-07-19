@@ -1,25 +1,17 @@
-import { fetcher } from "@/lib/fetcher";
+import { authClient } from "@/lib/auth-client";
 
 /**
  * Mutation (POST / PUT / DELETE) operations for authentication
  */
 
 export async function loginUser(credentials) {
-  return fetcher("/api/auth/login", {
-    method: "POST",
-    body: credentials,
-  });
+  return authClient.signIn.email(credentials);
 }
 
 export async function registerUser(userData) {
-  return fetcher("/api/auth/register", {
-    method: "POST",
-    body: userData,
-  });
+  return authClient.signUp.email(userData);
 }
 
 export async function logoutUser() {
-  return fetcher("/api/auth/logout", {
-    method: "POST",
-  });
+  return authClient.signOut();
 }

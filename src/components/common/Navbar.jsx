@@ -2,15 +2,18 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { authClient } from "@/lib/auth-client";
 import { ChevronDown, Plus } from "@gravity-ui/icons";
-import { HiBuildingOffice2, HiSparkles, HiSun, HiMoon } from "react-icons/hi2";
+import { HiBuildingOffice2, HiSparkles, HiSun, HiMoon, HiArrowRightOnRectangle } from "react-icons/hi2";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, isPending } = useAuth();
   const { theme, toggleTheme, mounted } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -23,6 +26,18 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await authClient.signOut();
+      toast.success("Logged out successfully");
+      setMobileMenuOpen(false);
+      router.push("/login");
+      router.refresh();
+    } catch (err) {
+      toast.error(err.message || "Logout failed");
+    }
+  };
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -142,10 +157,10 @@ export default function Navbar() {
                   </li>
                   <li className="border-t border-[var(--border-color)] mt-1 pt-1">
                     <button
-                      onClick={() => alert("Logging out...")}
-                      className="py-2.5 text-red-500 hover:bg-red-500/10 rounded-xl"
+                      onClick={handleLogout}
+                      className="py-2.5 text-red-500 hover:bg-red-500/10 rounded-xl flex items-center gap-2"
                     >
-                      Log Out
+                      <HiArrowRightOnRectangle className="w-4 h-4" /> Log Out
                     </button>
                   </li>
                 </ul>
@@ -240,7 +255,20 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
-            {!user && (
+            {user ? (
+              <div className="pt-4 border-t border-[var(--border-color)] flex flex-col gap-2.5">
+                <div className="px-4 py-2">
+                  <p className="font-semibold text-[var(--text-main)]">{user.name}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{user.email}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-center py-3 rounded-xl text-red-500 bg-red-500/10 font-medium flex items-center justify-center gap-2"
+                >
+                  <HiArrowRightOnRectangle className="w-5 h-5" /> Log Out
+                </button>
+              </div>
+            ) : (
               <div className="pt-4 border-t border-[var(--border-color)] flex flex-col gap-2.5">
                 <Link
                   href="/login"

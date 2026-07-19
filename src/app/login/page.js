@@ -7,12 +7,13 @@ import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { authClient } from "@/lib/auth-client";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
-import { HiBuildingOffice2, HiSparkles } from "react-icons/hi2";
+import { HiBuildingOffice2, HiEye, HiEyeSlash } from "react-icons/hi2";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -38,6 +39,7 @@ export default function LoginPage() {
       } else {
         toast.success("Signed in successfully!");
         router.push("/");
+        router.refresh();
       }
     } catch (err) {
       setErrorMsg(err.message || "An unexpected error occurred.");
@@ -103,14 +105,29 @@ export default function LoginPage() {
                 Forgot password?
               </a>
             </div>
-            <input
-              type="password"
-              required
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-3 pr-11 focus:outline-none focus:border-teal-500 transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-main)] p-1 rounded-lg transition-colors"
+                title={showPassword ? "Hide password" : "Show password"}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? (
+                  <HiEyeSlash className="w-5 h-5" />
+                ) : (
+                  <HiEye className="w-5 h-5" />
+                )}
+              </button>
+            </div>
           </div>
 
           <motion.button
