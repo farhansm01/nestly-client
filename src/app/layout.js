@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ToastProvider from "@/components/providers/ToastProvider";
 import AuthProvider from "@/components/providers/AuthProvider";
+import ThemeProvider from "@/components/providers/ThemeProvider";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 
@@ -25,14 +26,17 @@ export default function RootLayout({ children }) {
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      data-theme="dark"
     >
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100">
-        <AuthProvider>
-          <ToastProvider />
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </AuthProvider>
+      <body className="min-h-full flex flex-col bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300">
+        <ThemeProvider>
+          <AuthProvider>
+            <ToastProvider />
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

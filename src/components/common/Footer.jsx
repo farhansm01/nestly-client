@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { HiBuildingOffice2, HiSparkles, HiMapPin, HiCurrencyDollar } from "react-icons/hi2";
+import { HiBuildingOffice2, HiSparkles, HiMapPin } from "react-icons/hi2";
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-slate-800 pt-16 pb-12">
+    <footer className="bg-[var(--bg-main)] text-[var(--text-muted)] border-t border-[var(--border-color)] pt-16 pb-12 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-[var(--border-color)]">
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-3">
@@ -13,25 +13,25 @@ export default function Footer() {
                 <HiBuildingOffice2 className="w-6 h-6" />
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-2xl font-bold tracking-tight text-white">
+                <span className="text-2xl font-bold tracking-tight text-[var(--text-main)]">
                   Nestly
                 </span>
-                <span className="text-[10px] font-semibold tracking-wider px-1.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center gap-0.5">
-                  <HiSparkles className="w-3 h-3 text-amber-400" /> AI
+                <span className="text-[10px] font-semibold tracking-wider px-1.5 py-0.5 rounded-full bg-teal-500/20 text-teal-500 dark:text-teal-300 border border-teal-500/30 flex items-center gap-0.5">
+                  <HiSparkles className="w-3 h-3 text-amber-500" /> AI
                 </span>
               </div>
             </Link>
-            <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
+            <p className="text-sm text-[var(--text-muted)] max-w-sm leading-relaxed">
               Empowering home buyers, sellers, and investors with AI-driven property valuations, intelligent matching, and verified real estate listings.
             </p>
             <div className="flex items-center gap-3 pt-2">
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-teal-400 hover:border-teal-500/50 transition-colors">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors">
                 <span className="text-sm font-semibold">X</span>
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-teal-400 hover:border-teal-500/50 transition-colors">
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors">
                 <span className="text-sm font-semibold">in</span>
               </a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-teal-400 hover:border-teal-500/50 transition-colors">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors">
                 <span className="text-sm font-semibold">f</span>
               </a>
             </div>
@@ -39,27 +39,27 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-4">
+            <h3 className="text-sm font-semibold text-[var(--text-main)] tracking-wider uppercase mb-4">
               Explore
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/items" className="hover:text-teal-400 transition-colors">
+                <Link href="/items" className="hover:text-teal-500 transition-colors">
                   All Properties
                 </Link>
               </li>
               <li>
-                <Link href="/items?type=apartment" className="hover:text-teal-400 transition-colors">
+                <Link href="/items?type=apartment" className="hover:text-teal-500 transition-colors">
                   Modern Apartments
                 </Link>
               </li>
               <li>
-                <Link href="/items?type=villa" className="hover:text-teal-400 transition-colors">
+                <Link href="/items?type=villa" className="hover:text-teal-500 transition-colors">
                   Luxury Villas
                 </Link>
               </li>
               <li>
-                <Link href="/items?type=penthouse" className="hover:text-teal-400 transition-colors">
+                <Link href="/items?type=penthouse" className="hover:text-teal-500 transition-colors">
                   Penthouses
                 </Link>
               </li>
@@ -68,27 +68,27 @@ export default function Footer() {
 
           {/* Quick Platform Actions */}
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-4">
+            <h3 className="text-sm font-semibold text-[var(--text-main)] tracking-wider uppercase mb-4">
               Platform
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/items/add" className="hover:text-teal-400 transition-colors">
+                <Link href="/items/add" className="hover:text-teal-500 transition-colors">
                   Add New Listing
                 </Link>
               </li>
               <li>
-                <Link href="/items/manage" className="hover:text-teal-400 transition-colors">
+                <Link href="/items/manage" className="hover:text-teal-500 transition-colors">
                   Manage My Listings
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-teal-400 transition-colors">
+                <Link href="/about" className="hover:text-teal-500 transition-colors">
                   About Nestly
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="hover:text-teal-400 transition-colors">
+                <Link href="/login" className="hover:text-teal-500 transition-colors">
                   Account Sign In
                 </Link>
               </li>
@@ -97,16 +97,16 @@ export default function Footer() {
 
           {/* Contact & Support */}
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-4">
+            <h3 className="text-sm font-semibold text-[var(--text-main)] tracking-wider uppercase mb-4">
               Contact Us
             </h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
-                <HiMapPin className="w-5 h-5 text-teal-400 shrink-0 mt-0.5" />
+                <HiMapPin className="w-5 h-5 text-teal-500 shrink-0 mt-0.5" />
                 <span>742 Evergreen Terrace, San Francisco, CA</span>
               </li>
               <li className="flex items-center gap-2.5">
-                <span className="text-teal-400 font-semibold">@</span>
+                <span className="text-teal-500 font-semibold">@</span>
                 <span>support@nestly.ai</span>
               </li>
             </ul>
@@ -114,13 +114,13 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[var(--text-muted)]">
           <p>© {new Date().getFullYear()} Nestly AI Platform. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-slate-400 transition-colors">
+            <Link href="/privacy" className="hover:text-[var(--text-main)] transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-slate-400 transition-colors">
+            <Link href="/terms" className="hover:text-[var(--text-main)] transition-colors">
               Terms of Service
             </Link>
           </div>

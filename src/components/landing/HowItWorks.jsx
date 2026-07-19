@@ -1,6 +1,3 @@
-import { HiSparkles, HiBuildingOffice2, HiCurrencyDollar } from "react-icons/hi2";
-import { Check } from "@gravity-ui/icons";
-
 const STEPS = [
   {
     num: "01",
@@ -24,16 +21,16 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section className="py-20 bg-slate-900 border-t border-slate-800">
+    <section className="py-20 bg-[var(--bg-main)] border-t border-[var(--border-color)] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-teal-400 font-semibold text-sm tracking-wider uppercase">
+          <span className="text-teal-500 font-semibold text-sm tracking-wider uppercase">
             Simple Process
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-1">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--text-main)] mt-1">
             How Nestly Works
           </h2>
-          <p className="text-slate-400 text-sm mt-2">
+          <p className="text-[var(--text-muted)] text-sm mt-2">
             Three simple steps to finding, evaluating, and securing your next real estate investment.
           </p>
         </div>
@@ -42,18 +39,18 @@ export default function HowItWorks() {
           {STEPS.map((step) => (
             <div
               key={step.num}
-              className="bg-slate-950 border border-slate-800 p-8 rounded-3xl relative hover:border-teal-500/40 transition-colors"
+              className="bg-[var(--bg-card)] border border-[var(--border-color)] p-8 rounded-3xl relative hover:border-teal-500/40 transition-colors shadow-md"
             >
               <div className="flex items-center justify-between mb-6">
                 <span className="text-3xl">{step.icon}</span>
-                <span className="text-4xl font-black text-slate-800 font-mono">
+                <span className="text-4xl font-black text-teal-500/20 font-mono">
                   {step.num}
                 </span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">
+              <h3 className="text-xl font-bold text-[var(--text-main)] mb-2">
                 {step.title}
               </h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
+              <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                 {step.desc}
               </p>
             </div>

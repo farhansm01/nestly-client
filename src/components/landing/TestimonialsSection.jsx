@@ -26,16 +26,16 @@ const TESTIMONIALS = [
 
 export default function TestimonialsSection() {
   return (
-    <section className="py-20 bg-slate-950 border-t border-slate-800">
+    <section className="py-20 bg-[var(--bg-main)] border-t border-[var(--border-color)] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-teal-400 font-semibold text-sm tracking-wider uppercase">
+          <span className="text-teal-500 font-semibold text-sm tracking-wider uppercase">
             User Stories
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-1">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--text-main)] mt-1">
             Loved by Buyers & Investors
           </h2>
-          <p className="text-slate-400 text-sm mt-2">
+          <p className="text-[var(--text-muted)] text-sm mt-2">
             See how Nestly's AI real estate platform helps people make confident decisions.
           </p>
         </div>
@@ -44,28 +44,28 @@ export default function TestimonialsSection() {
           {TESTIMONIALS.map((t) => (
             <div
               key={t.name}
-              className="bg-slate-900 border border-slate-800 p-8 rounded-3xl flex flex-col justify-between hover:border-teal-500/40 transition-colors"
+              className="bg-[var(--bg-card)] border border-[var(--border-color)] p-8 rounded-3xl flex flex-col justify-between hover:border-teal-500/40 transition-colors shadow-lg"
             >
               <div className="space-y-4">
-                <div className="flex items-center gap-1 text-amber-400">
+                <div className="flex items-center gap-1 text-amber-500">
                   {[...Array(t.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
                   ))}
                 </div>
-                <p className="text-slate-300 text-sm leading-relaxed italic">
+                <p className="text-[var(--text-muted)] text-sm leading-relaxed italic">
                   "{t.content}"
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 pt-6 mt-6 border-t border-slate-800">
+              <div className="flex items-center gap-3 pt-6 mt-6 border-t border-[var(--border-color)]">
                 <img
                   src={t.avatar}
                   alt={t.name}
                   className="w-11 h-11 rounded-full object-cover border border-teal-500/40"
                 />
                 <div>
-                  <h4 className="text-white font-bold text-sm">{t.name}</h4>
-                  <p className="text-slate-400 text-xs">{t.role}</p>
+                  <h4 className="text-[var(--text-main)] font-bold text-sm">{t.name}</h4>
+                  <p className="text-[var(--text-muted)] text-xs">{t.role}</p>
                 </div>
               </div>
             </div>
