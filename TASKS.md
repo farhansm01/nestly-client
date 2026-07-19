@@ -29,11 +29,11 @@
 - [x] T11: Footer — working internal links, contact info, social links
 
 ## Phase 3 — Auth Pages
-- [ ] T12: Login page — form, validation, error handling
-- [ ] T13: Register page — form, validation, error handling
-- [ ] T14: Demo login button — auto-fills valid demo credentials
-- [ ] T15: Google social login button, wired to BetterAuth provider
-- [ ] T16: Auth guard/middleware for protected routes → redirect to
+- [x] T12: Login page — form, validation, error handling
+- [x] T13: Register page — form, validation, error handling
+- [ ] T14: Demo login button — auto-fills valid demo credentials (postponed to last)
+- [x] T15: Google social login button, wired to BetterAuth provider
+- [x] T16: Auth guard/middleware for protected routes → redirect to
       `/login` if unauthenticated
 
 ## Phase 4 — Listing / Explore Page
