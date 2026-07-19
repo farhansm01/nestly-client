@@ -9,7 +9,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { authClient } from "@/lib/auth-client";
 import { ChevronDown, Plus } from "@gravity-ui/icons";
-import { HiBuildingOffice2, HiSparkles, HiSun, HiMoon, HiArrowRightOnRectangle } from "react-icons/hi2";
+import { HiBuildingOffice2, HiSparkles, HiSun, HiMoon, HiArrowRightOnRectangle, HiSquares2X2 } from "react-icons/hi2";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -48,12 +48,12 @@ export default function Navbar() {
 
   if (user) {
     navLinks.splice(2, 0, 
-      { name: "Add Property", href: "/items/add" },
-      { name: "Manage Listings", href: "/items/manage" }
+      { name: "Dashboard", href: "/dashboard" },
+      { name: "Add Property", href: "/items/add" }
     );
   }
 
-  const isActive = (path) => pathname === path;
+  const isActive = (path) => pathname === path || (path === "/dashboard" && pathname.startsWith("/dashboard"));
 
   return (
     <header
@@ -143,16 +143,21 @@ export default function Navbar() {
                 >
                   <li className="px-3 py-2 border-b border-[var(--border-color)]">
                     <p className="font-semibold text-[var(--text-main)] truncate">{user.name}</p>
-                    <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-500 uppercase">
+                        {user.role || "buyer"}
+                      </span>
+                    </div>
                   </li>
                   <li>
-                    <Link href="/items/add" className="py-2.5 hover:bg-[var(--bg-card-subtle)] rounded-xl">
-                      <Plus className="w-4 h-4 text-teal-500" /> Add Property
+                    <Link href="/dashboard" className="py-2.5 hover:bg-[var(--bg-card-subtle)] rounded-xl">
+                      <HiSquares2X2 className="w-4 h-4 text-teal-500" /> My Dashboard
                     </Link>
                   </li>
                   <li>
-                    <Link href="/items/manage" className="py-2.5 hover:bg-[var(--bg-card-subtle)] rounded-xl">
-                      <HiBuildingOffice2 className="w-4 h-4 text-amber-500" /> Manage Listings
+                    <Link href="/items/add" className="py-2.5 hover:bg-[var(--bg-card-subtle)] rounded-xl">
+                      <Plus className="w-4 h-4 text-amber-500" /> Add Property
                     </Link>
                   </li>
                   <li className="border-t border-[var(--border-color)] mt-1 pt-1">
