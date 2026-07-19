@@ -3,7 +3,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import clientPromise from "@/lib/db";
 
 const client = await clientPromise;
-const db = client.db();
+const db = client.db("nestify");
 
 export const auth = betterAuth({
   database: mongodbAdapter(db),
