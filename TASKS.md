@@ -5,14 +5,14 @@
 > server boots.
 
 ## Phase 1 — Foundation
-- [ ] T01: Set up `src/lib/fetcher.js` — shared fetch wrapper (base server
+- [x] T01: Set up `src/lib/fetcher.js` — shared fetch wrapper (base server
       URL from env var, error handling, JSON parsing)
-- [ ] T02: Set up `src/actions/` and `src/api/` folders with one example
+- [x] T02: Set up `src/actions/` and `src/api/` folders with one example
       file each (`auth.js`) to lock in the convention
-- [ ] T03: Configure Tailwind + DaisyUI theme — pick the 3 primary colors
+- [x] T03: Configure Tailwind + DaisyUI theme — pick the 3 primary colors
       + neutral, define as DaisyUI theme tokens
-- [ ] T04: Install and configure Gravity UI icons + react-icons
-- [ ] T05: Install and configure react-toast, wire a global toast provider
+- [x] T04: Install and configure Gravity UI icons + react-icons
+- [x] T05: Install and configure react-toast, wire a global toast provider
 - [ ] T06: Install BetterAuth client (`1.6.11`, `--legacy-peer-deps`),
       configure base client pointing at server's auth endpoints
 - [ ] T07: Build shared layout shell — root layout with toast provider,
