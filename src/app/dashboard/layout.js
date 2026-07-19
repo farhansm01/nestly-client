@@ -20,7 +20,7 @@ import {
   HiSun,
   HiMoon,
   HiArrowRightOnRectangle,
-  HiUser,
+  HiListBullet,
 } from "react-icons/hi2";
 
 export default function DashboardLayout({ children }) {
@@ -47,26 +47,26 @@ export default function DashboardLayout({ children }) {
   if (userRole === "admin") {
     navItems = [
       { name: "Overview", href: "/dashboard/admin", icon: HiSquares2X2 },
-      { name: "All Listings", href: "/items", icon: HiBuildingOffice2 },
-      { name: "Add Property", href: "/items/add", icon: HiPlusCircle },
+      { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
+      { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
+      { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
       { name: "User Roles", href: "/dashboard/admin#users", icon: HiUsers },
       { name: "Platform Analytics", href: "/dashboard/admin#analytics", icon: HiChartBar },
-      { name: "System Settings", href: "/dashboard/admin#settings", icon: HiCog6Tooth },
     ];
   } else if (userRole === "seller" || userRole === "agent") {
     navItems = [
       { name: "Overview", href: "/dashboard/seller", icon: HiSquares2X2 },
-      { name: "My Listings", href: "/items/manage", icon: HiBuildingOffice2 },
-      { name: "Add Property", href: "/items/add", icon: HiPlusCircle },
+      { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
+      { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
       { name: "Inquiries", href: "/dashboard/seller#inquiries", icon: HiDocumentText },
     ];
   } else {
     // Default Buyer
     navItems = [
       { name: "Overview", href: "/dashboard/buyer", icon: HiSquares2X2 },
-      { name: "Saved Properties", href: "/dashboard/buyer#saved", icon: HiHeart },
-      { name: "Tour Inquiries", href: "/dashboard/buyer#tours", icon: HiDocumentText },
-      { name: "Lease AI Docs", href: "/dashboard/buyer#docs", icon: HiSparkles },
+      { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
+      { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
+      { name: "Saved Homes", href: "/dashboard/buyer#saved", icon: HiHeart },
       { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
     ];
   }
