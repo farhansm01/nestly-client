@@ -55,11 +55,12 @@
 - [ ] T27: Key info/specifications section (area, bedrooms, amenities, year)
 - [ ] T28: Related/similar properties section
 
-## Phase 6 — Protected Pages
-- [ ] T29: `/items/add` — form (title, short + full description, price,
-      location, optional image URL, other property fields), submit action
-- [ ] T30: `/items/manage` — table/grid of the logged-in user's listings,
-      View + Delete actions, responsive layout
+## Phase 6 — Protected Role-Based Dashboard Pages
+- [ ] T29: Role-based Dashboard routing (`/dashboard`) — auto-redirects `user` to `/dashboard/user` and `admin` to `/dashboard/admin`
+- [ ] T30: `/unauthorized` page (403 Forbidden UI) for unauthorized role access attempts
+- [ ] T31: User Dashboard (`/dashboard/user`) — user stats overview, my listings table, saved favorites
+- [ ] T32: Admin Dashboard (`/dashboard/admin`) — platform analytics, user role management, system property moderation
+- [ ] T33: Add Property Portal (`/items/add`) — listing creation form with specs and image upload
 
 ## Phase 7 — AI Features (UI side)
 - [ ] T31: Recommendation Engine UI — preference input (or implicit from

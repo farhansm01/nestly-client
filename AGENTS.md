@@ -60,12 +60,11 @@ src/
 - Pure Tailwind + DaisyUI components only — no other component libraries
 - No placeholder/lorem ipsum content anywhere in the final build
 
-## Auth Notes
-- BetterAuth client handles login/signup/session UI
-- Demo login button must auto-fill valid demo credentials (no manual typing needed)
-- Google social login required
-- Protected routes: `/items/add`, `/items/manage` — redirect unauthenticated
-  users to `/login`
+## Auth & Dashboard Notes
+- BetterAuth client handles login/signup/session UI and stores user role (`user` vs `admin`)
+- Logged-in users see a "Dashboard" button in Navbar that redirects to their role-specific dashboard (`/dashboard` → `/dashboard/user` or `/dashboard/admin`)
+- Unauthorized role access attempts trigger immediate redirection to `/unauthorized` page (403 Forbidden UI)
+- Protected routes: `/dashboard/*`, `/items/add` — redirect unauthenticated users to `/login`
 
 ## Communication Style for Agents Working on This Repo
 - Keep explanations simple, avoid dense jargon
