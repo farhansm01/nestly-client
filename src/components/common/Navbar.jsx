@@ -44,6 +44,7 @@ export default function Navbar() {
     { name: "Explore Properties", href: "/items" },
     { name: "AI Features", href: "/#ai-features" },
     { name: "About Us", href: "/about" },
+    { name: "Contact Us", href: "/contact" },
   ];
 
   const isActive = (path) => pathname === path;
@@ -79,7 +80,7 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Clean Desktop Nav Links */}
+          {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-1 bg-[var(--bg-card-subtle)] p-1.5 rounded-full border border-[var(--border-color)]">
             {navLinks.map((link) => (
               <Link
@@ -149,7 +150,7 @@ export default function Navbar() {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/items/add" className="py-2.5 hover:bg-[var(--bg-card-subtle)] rounded-xl flex items-center gap-2">
+                    <Link href="/dashboard/add" className="py-2.5 hover:bg-[var(--bg-card-subtle)] rounded-xl flex items-center gap-2">
                       <Plus className="w-4 h-4 text-amber-500" /> Add Property
                     </Link>
                   </li>
