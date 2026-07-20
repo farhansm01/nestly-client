@@ -5,6 +5,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import RoleGuard from "@/components/auth/RoleGuard";
+import ImageUploader from "@/components/common/ImageUploader";
 import { getMyProperties } from "@/api/properties";
 import { getAllAdminProperties, updatePropertyStatus } from "@/api/admin";
 import { updateProperty, deleteProperty } from "@/actions/properties";
@@ -485,15 +486,29 @@ export default function DashboardManageListingsPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
-                      Main Image URL
+                  {/* Property Photos & Gallery Manager */}
+                  <div className="pt-2">
+                    <label className="block text-xs font-bold text-[var(--text-main)] uppercase tracking-wider mb-2">
+                      Property Photos & Gallery Management
                     </label>
-                    <input
-                      type="text"
-                      value={editingProperty.image || ""}
-                      onChange={(e) => setEditingProperty({ ...editingProperty, image: e.target.value })}
-                      className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
+                    <ImageUploader
+                      images={
+                        Array.isArray(editingProperty.images) && editingProperty.images.length > 0
+                          ? editingProperty.images
+                          : Array.isArray(editingProperty.gallery) && editingProperty.gallery.length > 0
+                          ? editingProperty.gallery
+                          : editingProperty.image
+                          ? [editingProperty.image]
+                          : []
+                      }
+                      setImages={(newImagesList) => {
+                        setEditingProperty({
+                          ...editingProperty,
+                          image: newImagesList[0] || "",
+                          images: newImagesList,
+                          gallery: newImagesList,
+                        });
+                      }}
                     />
                   </div>
 
