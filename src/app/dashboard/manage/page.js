@@ -139,7 +139,7 @@ export default function DashboardManageListingsPage() {
   };
 
   return (
-    <RoleGuard allowedRoles={["buyer", "seller", "agent", "admin"]}>
+    <RoleGuard allowedRoles={["seller", "agent", "admin"]}>
       <div className="space-y-8 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

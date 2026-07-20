@@ -110,7 +110,7 @@ export default function DashboardAddPropertyPage() {
   };
 
   return (
-    <RoleGuard allowedRoles={["buyer", "seller", "agent", "admin"]}>
+    <RoleGuard allowedRoles={["seller", "agent", "admin"]}>
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div className="space-y-1">

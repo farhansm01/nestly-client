@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("buyer");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -45,6 +46,7 @@ export default function RegisterPage() {
         email,
         password,
         name,
+        role,
       });
 
       if (res?.error) {
@@ -96,6 +98,40 @@ export default function RegisterPage() {
 
         {/* Register Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Account Role Selection */}
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
+              Select Account Role *
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setRole("buyer")}
+                className={`p-3 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center gap-1 ${
+                  role === "buyer"
+                    ? "bg-teal-500/15 border-teal-500 text-teal-500 shadow-sm"
+                    : "bg-[var(--bg-card-subtle)] border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                }`}
+              >
+                <span>🏡 Property Buyer</span>
+                <span className="text-[10px] font-normal text-[var(--text-muted)]">Browse & Save Homes</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setRole("seller")}
+                className={`p-3 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center gap-1 ${
+                  role === "seller"
+                    ? "bg-teal-500/15 border-teal-500 text-teal-500 shadow-sm"
+                    : "bg-[var(--bg-card-subtle)] border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                }`}
+              >
+                <span>🔑 Seller / Agent</span>
+                <span className="text-[10px] font-normal text-[var(--text-muted)]">Post & Manage Listings</span>
+              </button>
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
               Full Name
