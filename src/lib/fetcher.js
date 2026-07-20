@@ -38,6 +38,7 @@ export async function fetcher(endpoint, options = {}) {
   // Ensure clean path join
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const url = `${baseUrl}${cleanEndpoint}${queryString}`;
+  console.log("[Nestly API Fetch]:", url);
 
   const defaultHeaders = {
     "Content-Type": "application/json",
