@@ -33,6 +33,7 @@ export default function AIFeaturesPage() {
   const [propertyType, setPropertyType] = useState("all");
   const [budget, setBudget] = useState("3000000");
   const [bedrooms, setBedrooms] = useState("2");
+  const [selectedLifestyle, setSelectedLifestyle] = useState(["Ocean Views", "Smart Home Tech", "Gated Security"]);
   const [recommendations, setRecommendations] = useState([]);
   const [loadingRecs, setLoadingRecs] = useState(false);
 
@@ -51,21 +52,29 @@ export default function AIFeaturesPage() {
   const [inputMessage, setInputMessage] = useState("");
   const [sendingMsg, setSendingMsg] = useState(false);
 
+  // Toggle amenity selection
+  const toggleLifestyle = (tag) => {
+    setSelectedLifestyle((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
   // Load initial recommendations
   const handleFetchRecommendations = async () => {
     try {
       setLoadingRecs(true);
-      toast.loading("Nestly AI generating smart property matches...", { id: "ai-rec" });
+      toast.loading("Nestly AI scoring luxury platform matches...", { id: "ai-rec" });
       const res = await getAIPropertyRecommendations({
         location,
         propertyType: propertyType === "all" ? "" : propertyType,
         budget: Number(budget) || 5000000,
         bedrooms: Number(bedrooms) || 0,
+        lifestyle: selectedLifestyle,
       });
 
       if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
         setRecommendations(res.data);
-        toast.success(`Found ${res.data.length} AI matched properties!`, { id: "ai-rec" });
+        toast.success(`Found ${res.data.length} top luxury property matches!`, { id: "ai-rec" });
       } else {
         setRecommendations([]);
         toast.success("AI Recommendation complete!", { id: "ai-rec" });
@@ -298,6 +307,39 @@ export default function AIFeaturesPage() {
                   </select>
                 </div>
 
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-1.5">
+                    Lifestyle Priorities & Amenities
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      "Ocean Views",
+                      "Smart Home Tech",
+                      "Private Pool",
+                      "EV Parking",
+                      "Gated Security",
+                      "Top School District",
+                    ].map((tag) => {
+                      const isSelected = selectedLifestyle.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => toggleLifestyle(tag)}
+                          className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all ${
+                            isSelected
+                              ? "bg-teal-600 text-white border-teal-500 shadow-sm"
+                              : "bg-[var(--bg-card-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:text-[var(--text-main)]"
+                          }`}
+                        >
+                          {isSelected ? "✓ " : "+ "}
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div className="pt-2">
                   <button
                     onClick={handleFetchRecommendations}
@@ -307,7 +349,7 @@ export default function AIFeaturesPage() {
                     {loadingRecs ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Matching Properties...</span>
+                        <span>Scoring Luxury Matches...</span>
                       </>
                     ) : (
                       <>
@@ -324,7 +366,7 @@ export default function AIFeaturesPage() {
             <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-6 sm:p-8 rounded-3xl shadow-xl lg:col-span-2 space-y-6">
               <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
                 <h3 className="text-xl font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <span>AI Matched Properties</span>
+                  <span>Top AI Property Matches</span>
                   <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-500 border border-teal-500/30">
                     {recommendations.length} Matches
                   </span>
@@ -334,7 +376,7 @@ export default function AIFeaturesPage() {
               {loadingRecs ? (
                 <div className="p-12 text-center">
                   <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-sm text-[var(--text-muted)] font-medium">Scoring platform properties with Gemini AI...</p>
+                  <p className="text-sm text-[var(--text-muted)] font-medium">Evaluating multi-attribute luxury match scores...</p>
                 </div>
               ) : recommendations.length === 0 ? (
                 <div className="p-12 text-center space-y-3 border-2 border-dashed border-[var(--border-color)] rounded-2xl">
@@ -354,12 +396,12 @@ export default function AIFeaturesPage() {
                       typeof prop.price === "number"
                         ? `$${prop.price.toLocaleString("en-US")}`
                         : prop.formattedPrice || prop.price;
-                    const matchScore = prop.matchScore || Math.max(98 - idx * 3, 85);
+                    const matchScore = prop.matchScore || Math.max(99 - idx * 2, 89);
 
                     return (
                       <div
                         key={propId}
-                        className="p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] space-y-3 hover:border-teal-500/50 transition-all group flex flex-col justify-between"
+                        className="p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] space-y-3 hover:border-teal-500/50 transition-all group flex flex-col justify-between shadow-md"
                       >
                         <div className="space-y-3">
                           <div className="relative aspect-[16/10] rounded-xl overflow-hidden">
@@ -373,7 +415,7 @@ export default function AIFeaturesPage() {
                             </span>
                           </div>
 
-                          <div className="space-y-1">
+                          <div className="space-y-1.5">
                             <h4 className="font-bold text-sm text-[var(--text-main)] line-clamp-1 group-hover:text-teal-500 transition-colors">
                               {prop.title}
                             </h4>
@@ -381,11 +423,25 @@ export default function AIFeaturesPage() {
                               <HiMapPin className="w-3.5 h-3.5 text-teal-500 shrink-0" />
                               <span className="truncate">{prop.location}</span>
                             </p>
-                            <p className="text-sm font-extrabold text-teal-500 mt-1">
+
+                            <div className="flex items-center gap-3 text-[11px] font-semibold text-[var(--text-muted)] py-0.5">
+                              <span>{prop.beds || 3} Beds</span>
+                              <span>•</span>
+                              <span>{prop.baths || 2} Baths</span>
+                              {prop.sqft && (
+                                <>
+                                  <span>•</span>
+                                  <span>{prop.sqft}</span>
+                                </>
+                              )}
+                            </div>
+
+                            <p className="text-base font-black text-teal-500">
                               {displayPrice}
                             </p>
+
                             {prop.matchReason && (
-                              <p className="text-[11px] text-[var(--text-muted)] italic pt-1 border-t border-[var(--border-color)]">
+                              <p className="text-[11px] text-[var(--text-muted)] italic pt-1.5 border-t border-[var(--border-color)] leading-snug">
                                 "{prop.matchReason}"
                               </p>
                             )}
