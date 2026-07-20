@@ -25,6 +25,74 @@ import {
   HiLightBulb,
 } from "react-icons/hi2";
 
+const renderBoldText = (str, isUser) => {
+  if (!str) return "";
+  const parts = str.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={i} className={isUser ? "font-bold text-white" : "font-extrabold text-teal-400"}>
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return (
+        <code key={i} className="px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 font-mono text-[11px]">
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    return part;
+  });
+};
+
+const FormattedChatMessage = ({ text, isUser }) => {
+  if (!text) return null;
+  const lines = text.split("\n");
+
+  return (
+    <div className="space-y-1.5 leading-relaxed text-xs">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={idx} className="h-0.5" />;
+
+        if (trimmed.startsWith("###")) {
+          return (
+            <h4 key={idx} className={`font-extrabold text-xs pt-1.5 pb-0.5 ${isUser ? "text-white" : "text-teal-400"}`}>
+              {trimmed.replace(/^###\s*/, "")}
+            </h4>
+          );
+        }
+
+        if (trimmed.startsWith("##")) {
+          return (
+            <h3 key={idx} className={`font-extrabold text-xs pt-1.5 ${isUser ? "text-white" : "text-teal-400"}`}>
+              {trimmed.replace(/^##\s*/, "")}
+            </h3>
+          );
+        }
+
+        if (trimmed.startsWith("* ") || trimmed.startsWith("- ") || trimmed.startsWith("• ")) {
+          const content = trimmed.replace(/^[\*\-•]\s*/, "");
+          return (
+            <div key={idx} className="flex items-start gap-1.5 pl-1.5 my-0.5">
+              <span className={`font-bold shrink-0 mt-0.5 text-[10px] ${isUser ? "text-white" : "text-teal-400"}`}>•</span>
+              <div>{renderBoldText(content, isUser)}</div>
+            </div>
+          );
+        }
+
+        if (trimmed === "---") {
+          return <hr key={idx} className="border-teal-500/30 my-2" />;
+        }
+
+        return <p key={idx}>{renderBoldText(trimmed, isUser)}</p>;
+      })}
+    </div>
+  );
+};
+
 export default function AIFeaturesPage() {
   const [activeTab, setActiveTab] = useState("recommendations");
 
@@ -696,7 +764,7 @@ export default function AIFeaturesPage() {
                         : "bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] rounded-bl-none shadow-sm"
                     }`}
                   >
-                    {msg.text}
+                    <FormattedChatMessage text={msg.text} isUser={msg.sender === "user"} />
                   </div>
                 </div>
               ))}
