@@ -29,7 +29,7 @@ export default function DashboardLayout({ children }) {
   const { user } = useAuth();
   const { theme, toggleTheme, mounted } = useTheme();
 
-  const userRole = user?.role || "buyer";
+  const userRole = user?.role || "user";
 
   const handleLogout = async () => {
     try {
@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }) {
     }
   };
 
-  // Define sidebar links based on role
+  // Define sidebar links based on role (Admin vs Standard User)
   let navItems = [];
   if (userRole === "admin") {
     navItems = [
@@ -53,19 +53,12 @@ export default function DashboardLayout({ children }) {
       { name: "AI Features", href: "/ai-features", icon: HiSparkles },
       { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
     ];
-  } else if (userRole === "seller" || userRole === "agent") {
+  } else {
+    // Standard User (Access to search, save, post, manage listings & AI)
     navItems = [
-      { name: "Overview", href: "/dashboard/seller", icon: HiSquares2X2 },
+      { name: "Overview", href: "/dashboard", icon: HiSquares2X2 },
       { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
       { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
-      { name: "Saved Homes", href: "/dashboard/saved", icon: HiHeart },
-      { name: "AI Features", href: "/ai-features", icon: HiSparkles },
-      { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
-    ];
-  } else {
-    // Default Buyer (No Add Property or Manage Listings)
-    navItems = [
-      { name: "Overview", href: "/dashboard/buyer", icon: HiSquares2X2 },
       { name: "Saved Homes", href: "/dashboard/saved", icon: HiHeart },
       { name: "AI Features", href: "/ai-features", icon: HiSparkles },
       { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
