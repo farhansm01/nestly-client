@@ -42,7 +42,7 @@ export default function BuyerDashboardPage() {
   const savedCount = savedHomes.length;
 
   return (
-    <RoleGuard allowedRoles={["buyer", "user", "admin"]}>
+    <RoleGuard allowedRoles={["buyer", "user"]}>
       <div className="space-y-8 max-w-6xl mx-auto">
         {/* Welcome Header */}
         <div className="space-y-1">

@@ -95,7 +95,7 @@ export default function UnifiedUserDashboardPage() {
   const totalViews = myListings.reduce((sum, item) => sum + (item.views || 0), 0);
 
   return (
-    <RoleGuard allowedRoles={["user", "buyer", "seller", "agent", "admin"]}>
+    <RoleGuard allowedRoles={["user", "buyer", "seller", "agent"]}>
       <div className="space-y-8 max-w-6xl mx-auto">
         {/* Welcome Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
