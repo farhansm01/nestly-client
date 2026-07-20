@@ -48,10 +48,7 @@ export default function DashboardLayout({ children }) {
     navItems = [
       { name: "Overview", href: "/dashboard/admin", icon: HiSquares2X2 },
       { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
-      { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
-      { name: "Saved Homes", href: "/dashboard/saved", icon: HiHeart },
-      { name: "AI Features", href: "/ai-features", icon: HiSparkles },
-      { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
+      { name: "Manage Users", href: "/dashboard/admin/users", icon: HiUsers },
     ];
   } else {
     // Standard User (Access to search, save, post, manage listings & AI)

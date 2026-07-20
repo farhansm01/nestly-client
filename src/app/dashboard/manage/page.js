@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import RoleGuard from "@/components/auth/RoleGuard";
 import { getMyProperties } from "@/api/properties";
+import { getAllAdminProperties, updatePropertyStatus } from "@/api/admin";
 import { updateProperty, deleteProperty } from "@/actions/properties";
 import { useAuth } from "@/components/providers/AuthProvider";
 import {
@@ -17,91 +18,84 @@ import {
   HiMagnifyingGlass,
   HiMapPin,
   HiXMark,
+  HiCheckCircle,
+  HiXCircle,
+  HiClock,
 } from "react-icons/hi2";
-
-const SAMPLE_USER_LISTINGS = [
-  {
-    _id: "prop-1",
-    id: "prop-1",
-    title: "Skyline Luxury Penthouse",
-    location: "Downtown, San Francisco, CA",
-    price: 2450000,
-    formattedPrice: "$2,450,000",
-    type: "Penthouse",
-    beds: 3,
-    baths: 3,
-    sqft: "2,850 sqft",
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
-    status: "Active",
-    views: 482,
-  },
-  {
-    _id: "prop-2",
-    id: "prop-2",
-    title: "Emerald Bay Coastal Villa",
-    location: "Malibu Beach, CA",
-    price: 4800000,
-    formattedPrice: "$4,800,000",
-    type: "Villa",
-    beds: 5,
-    baths: 4.5,
-    sqft: "4,500 sqft",
-    image: "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80",
-    status: "Active",
-    views: 1250,
-  },
-];
 
 export default function DashboardManageListingsPage() {
   const { user } = useAuth();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedSort, setSelectedSort] = useState("newest");
   const [editingProperty, setEditingProperty] = useState(null);
   const [deletingPropertyId, setDeletingPropertyId] = useState(null);
 
-  const getUserHeaders = () => {
+  const isAdmin = user?.role === "admin";
+
+  const getHeaders = () => {
     const headers = {};
     if (user?.id || user?._id) {
       headers["x-user-id"] = user.id || user._id;
-      headers["x-user-name"] = user.name || user.email?.split("@")[0] || "Seller";
+      headers["x-user-name"] = user.name || "User";
       headers["x-user-email"] = user.email || "";
-      headers["x-user-role"] = user.role || "seller";
+      headers["x-user-role"] = user.role || "user";
     }
     return headers;
   };
 
-  useEffect(() => {
-    async function loadProperties() {
-      try {
-        setLoading(true);
-        const headers = getUserHeaders();
-        const res = await getMyProperties(headers);
-        if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-          setListings(res.data);
-        } else if (res?.data && Array.isArray(res.data)) {
-          setListings([]);
-        } else {
-          setListings(SAMPLE_USER_LISTINGS);
-        }
-      } catch (err) {
-        setListings(SAMPLE_USER_LISTINGS);
-      } finally {
-        setLoading(false);
+  const loadProperties = async () => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      const headers = getHeaders();
+      let res;
+      if (isAdmin) {
+        res = await getAllAdminProperties(
+          { search: searchTerm, status: selectedStatus, sort: selectedSort },
+          headers
+        );
+      } else {
+        res = await getMyProperties(headers);
       }
-    }
-    loadProperties();
-  }, [user]);
 
-  const filteredListings = listings.filter(
-    (item) =>
-      item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.location?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      if (res?.data && Array.isArray(res.data)) {
+        setListings(res.data);
+      } else {
+        setListings([]);
+      }
+    } catch (err) {
+      setListings([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProperties();
+  }, [user, searchTerm, selectedStatus, selectedSort]);
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      toast.loading(`Updating status to ${newStatus}...`, { id: "prop-status" });
+      const headers = getHeaders();
+      const res = await updatePropertyStatus(id, newStatus, headers);
+      if (res?.success) {
+        toast.success(`Property ${newStatus}!`, { id: "prop-status" });
+        loadProperties();
+      } else {
+        toast.error(res?.message || "Failed to update status", { id: "prop-status" });
+      }
+    } catch (err) {
+      toast.error("Error updating property status", { id: "prop-status" });
+    }
+  };
 
   const handleDelete = async (id) => {
     try {
-      const headers = getUserHeaders();
+      const headers = getHeaders();
       await deleteProperty(id, headers);
       setListings(listings.filter((item) => (item._id || item.id) !== id));
       setDeletingPropertyId(null);
@@ -117,24 +111,15 @@ export default function DashboardManageListingsPage() {
     e.preventDefault();
     try {
       const propId = editingProperty._id || editingProperty.id;
-      const headers = getUserHeaders();
+      const headers = getHeaders();
       await updateProperty(propId, editingProperty, headers);
-      setListings(
-        listings.map((item) =>
-          (item._id || item.id) === propId ? editingProperty : item
-        )
-      );
       setEditingProperty(null);
       toast.success("Property updated successfully!");
+      loadProperties();
     } catch (err) {
-      const propId = editingProperty._id || editingProperty.id;
-      setListings(
-        listings.map((item) =>
-          (item._id || item.id) === propId ? editingProperty : item
-        )
-      );
       setEditingProperty(null);
       toast.success("Property updated!");
+      loadProperties();
     }
   };
 
@@ -146,36 +131,78 @@ export default function DashboardManageListingsPage() {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-main)]">
-                Manage Property Listings
+                {isAdmin ? "Platform All Listings Management" : "Manage My Property Listings"}
               </h1>
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-500 border border-teal-500/30">
                 {listings.length} Listings
               </span>
             </div>
             <p className="text-sm text-[var(--text-muted)]">
-              View, edit, or remove your real estate properties posted on Nestly.
+              {isAdmin
+                ? "Review user submissions, approve or reject pending properties, edit details, and maintain listing quality."
+                : "View, edit, or remove your real estate properties posted on Nestly."}
             </p>
           </div>
 
-          <Link
-            href="/dashboard/add"
-            className="btn bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl px-5 border-none shadow-md flex items-center gap-2 w-fit"
-          >
-            <HiPlusCircle className="w-5 h-5" />
-            <span>Add New Property</span>
-          </Link>
+          {!isAdmin && (
+            <Link
+              href="/dashboard/add"
+              className="btn bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl px-5 border-none shadow-md flex items-center gap-2 w-fit"
+            >
+              <HiPlusCircle className="w-5 h-5" />
+              <span>Add New Property</span>
+            </Link>
+          )}
         </div>
 
-        {/* Filter / Search Bar */}
-        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-4 rounded-2xl flex items-center gap-3 shadow-md">
-          <HiMagnifyingGlass className="w-5 h-5 text-[var(--text-muted)] shrink-0" />
-          <input
-            type="text"
-            placeholder="Search your listings by title or location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-transparent text-[var(--text-main)] text-sm focus:outline-none placeholder:text-[var(--text-muted)]"
-          />
+        {/* Filter & Search Bar */}
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-4 sm:p-5 rounded-3xl space-y-4 shadow-md">
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            {/* Search Input */}
+            <div className="flex-1 w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] px-4 py-2.5 rounded-2xl flex items-center gap-2">
+              <HiMagnifyingGlass className="w-5 h-5 text-[var(--text-muted)] shrink-0" />
+              <input
+                type="text"
+                placeholder={isAdmin ? "Search by title, location, or owner name..." : "Search your listings by title or location..."}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-transparent text-[var(--text-main)] text-sm focus:outline-none placeholder:text-[var(--text-muted)]"
+              />
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="w-full sm:w-auto">
+              <select
+                value={selectedSort}
+                onChange={(e) => setSelectedSort(e.target.value)}
+                className="w-full sm:w-auto bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-xs font-bold rounded-2xl px-4 py-3 focus:outline-none"
+              >
+                <option value="newest">Sort: Newest First</option>
+                <option value="oldest">Sort: Oldest First</option>
+                <option value="price-asc">Sort: Price Low to High</option>
+                <option value="price-desc">Sort: Price High to Low</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Status Tabs for Admin */}
+          {isAdmin && (
+            <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-color)] overflow-x-auto">
+              {["all", "pending", "approved", "rejected"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setSelectedStatus(tab)}
+                  className={`px-4 py-1.5 rounded-xl text-xs font-bold capitalize transition-all ${
+                    selectedStatus === tab
+                      ? "bg-teal-600 text-white shadow-sm"
+                      : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-card-subtle)]"
+                  }`}
+                >
+                  {tab === "all" ? "All Listings" : tab}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Listings Table Container */}
@@ -183,23 +210,17 @@ export default function DashboardManageListingsPage() {
           {loading ? (
             <div className="p-12 text-center">
               <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-sm text-[var(--text-muted)] font-medium">Loading your listings...</p>
+              <p className="text-sm text-[var(--text-muted)] font-medium">Loading property listings...</p>
             </div>
-          ) : filteredListings.length === 0 ? (
+          ) : listings.length === 0 ? (
             <div className="p-12 text-center space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-[var(--bg-card-subtle)] flex items-center justify-center text-[var(--text-muted)] mx-auto">
                 <HiBuildingOffice2 className="w-6 h-6" />
               </div>
               <p className="text-base font-bold text-[var(--text-main)]">No listings found</p>
               <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
-                No active property listings match your search criteria.
+                No property listings match your search or status filter criteria.
               </p>
-              <Link
-                href="/dashboard/add"
-                className="btn btn-sm bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl px-5 border-none mt-2"
-              >
-                Post Property Now
-              </Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -207,21 +228,26 @@ export default function DashboardManageListingsPage() {
                 <thead className="bg-[var(--bg-card-subtle)] text-[var(--text-muted)] uppercase text-[11px] font-bold tracking-wider border-b border-[var(--border-color)]">
                   <tr>
                     <th className="py-4 px-6">Property</th>
+                    {isAdmin && <th className="py-4 px-4">Owner</th>}
                     <th className="py-4 px-4">Price</th>
-                    <th className="py-4 px-4">Type</th>
-                    <th className="py-4 px-4">Views</th>
                     <th className="py-4 px-4">Status</th>
                     <th className="py-4 px-6 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border-color)]">
-                  {filteredListings.map((property) => {
+                  {listings.map((property) => {
                     const propId = property._id || property.id;
                     const displayPrice =
                       property.formattedPrice ||
                       (typeof property.price === "number"
-                        ? `$${property.price.toLocaleString()}`
+                        ? `$${property.price.toLocaleString("en-US")}`
                         : property.price);
+                    const st = (property.status || "Active").toLowerCase();
+
+                    let statusBadgeClass = "bg-emerald-500/15 text-emerald-500 border-emerald-500/30";
+                    if (st === "pending") statusBadgeClass = "bg-amber-500/15 text-amber-500 border-amber-500/30";
+                    if (st === "rejected") statusBadgeClass = "bg-red-500/15 text-red-500 border-red-500/30";
+
                     return (
                       <tr key={propId} className="hover:bg-[var(--bg-card-subtle)]/50 transition-colors">
                         <td className="py-4 px-6">
@@ -246,21 +272,44 @@ export default function DashboardManageListingsPage() {
                             </div>
                           </div>
                         </td>
+
+                        {isAdmin && (
+                          <td className="py-4 px-4 text-xs font-semibold text-[var(--text-main)]">
+                            {property.sellerName || "Anonymous"}
+                          </td>
+                        )}
+
                         <td className="py-4 px-4 font-bold text-teal-500">
                           {displayPrice}
                         </td>
-                        <td className="py-4 px-4 text-xs font-semibold uppercase text-[var(--text-muted)]">
-                          {property.type}
-                        </td>
-                        <td className="py-4 px-4 font-medium text-[var(--text-muted)]">
-                          {property.views || 0}
-                        </td>
+
                         <td className="py-4 px-4">
-                          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border capitalize ${statusBadgeClass}`}>
                             {property.status || "Active"}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right space-x-2">
+
+                        <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
+                          {isAdmin && (
+                            <>
+                              <button
+                                onClick={() => handleStatusChange(propId, "Approved")}
+                                className="p-1.5 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/30 text-xs font-bold inline-flex items-center gap-1"
+                                title="Approve Listing"
+                              >
+                                <HiCheckCircle className="w-4 h-4" /> Approve
+                              </button>
+
+                              <button
+                                onClick={() => handleStatusChange(propId, "Rejected")}
+                                className="p-1.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/30 text-xs font-bold inline-flex items-center gap-1"
+                                title="Reject Listing"
+                              >
+                                <HiXCircle className="w-4 h-4" /> Reject
+                              </button>
+                            </>
+                          )}
+
                           <Link
                             href={`/items/${propId}`}
                             className="p-2 rounded-xl bg-[var(--bg-card-subtle)] text-[var(--text-muted)] hover:text-teal-500 border border-[var(--border-color)] inline-flex"
@@ -268,6 +317,7 @@ export default function DashboardManageListingsPage() {
                           >
                             <HiEye className="w-4 h-4" />
                           </Link>
+
                           <button
                             onClick={() => setEditingProperty({ ...property })}
                             className="p-2 rounded-xl bg-[var(--bg-card-subtle)] text-[var(--text-muted)] hover:text-amber-500 border border-[var(--border-color)] inline-flex"
@@ -275,6 +325,7 @@ export default function DashboardManageListingsPage() {
                           >
                             <HiPencilSquare className="w-4 h-4" />
                           </button>
+
                           <button
                             onClick={() => setDeletingPropertyId(propId)}
                             className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 inline-flex"
@@ -351,6 +402,23 @@ export default function DashboardManageListingsPage() {
                       className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
                     />
                   </div>
+
+                  {isAdmin && (
+                    <div>
+                      <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
+                        Approval Status
+                      </label>
+                      <select
+                        value={editingProperty.status || "Pending"}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, status: e.target.value })}
+                        className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
+                      >
+                        <option value="Pending">Pending Review</option>
+                        <option value="Approved">Approved / Active</option>
+                        <option value="Rejected">Rejected</option>
+                      </select>
+                    </div>
+                  )}
 
                   <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border-color)]">
                     <button

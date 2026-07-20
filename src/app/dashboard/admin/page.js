@@ -1,13 +1,93 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 import RoleGuard from "@/components/auth/RoleGuard";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { HiShieldCheck, HiUsers, HiBuildingOffice2, HiChartBar, HiPlusCircle } from "react-icons/hi2";
+import { getAdminStats, getAllAdminProperties, updatePropertyStatus } from "@/api/admin";
+import {
+  HiUsers,
+  HiBuildingOffice2,
+  HiDocumentCheck,
+  HiCheckCircle,
+  HiXCircle,
+  HiClock,
+  HiMapPin,
+  HiEye,
+  HiArrowRight,
+  HiShieldCheck,
+} from "react-icons/hi2";
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalProperties: 0,
+    pendingApprovals: 0,
+    approvedProperties: 0,
+  });
+  const [pendingListings, setPendingListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const getHeaders = () => {
+    const headers = {};
+    if (user?.id || user?._id) {
+      headers["x-user-id"] = user.id || user._id;
+      headers["x-user-name"] = user.name || "Admin";
+      headers["x-user-email"] = user.email || "admin@nestly.com";
+      headers["x-user-role"] = "admin";
+    }
+    return headers;
+  };
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const headers = getHeaders();
+
+      const [statsRes, propsRes] = await Promise.all([
+        getAdminStats(headers),
+        getAllAdminProperties({ status: "Pending" }, headers),
+      ]);
+
+      if (statsRes?.data) {
+        setStats(statsRes.data);
+      }
+
+      if (propsRes?.data && Array.isArray(propsRes.data)) {
+        setPendingListings(propsRes.data);
+      } else {
+        setPendingListings([]);
+      }
+    } catch (err) {
+      toast.error("Failed to load admin overview metrics");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      loadData();
+    }
+  }, [user]);
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      toast.loading(`Updating status to ${newStatus}...`, { id: "status-toast" });
+      const res = await updatePropertyStatus(id, newStatus, getHeaders());
+      if (res?.success) {
+        toast.success(`Property ${newStatus} successfully!`, { id: "status-toast" });
+        loadData();
+      } else {
+        toast.error(res?.message || "Failed to update status", { id: "status-toast" });
+      }
+    } catch (err) {
+      toast.error(err.message || "Failed to update property status", { id: "status-toast" });
+    }
+  };
 
   return (
     <RoleGuard allowedRoles={["admin"]}>
@@ -17,103 +97,184 @@ export default function AdminDashboardPage() {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-main)]">
-                System Administration
+                Admin Control Center
               </h1>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-500 border border-red-500/30 flex items-center gap-1">
-                <HiShieldCheck className="w-3.5 h-3.5" /> Super Admin
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-500 border border-teal-500/30 flex items-center gap-1 uppercase tracking-wider">
+                <HiShieldCheck className="w-3.5 h-3.5" /> Platform Admin
               </span>
             </div>
             <p className="text-sm text-[var(--text-muted)]">
-              Welcome back, {user?.name || "Admin"}. Platform-wide governance, moderation, and user management.
+              Overview of real-time platform statistics, user governance, and pending listing approvals.
             </p>
           </div>
 
-          <Link
-            href="/items/add"
-            className="btn bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl px-5 border-none shadow-md flex items-center gap-2 w-fit"
-          >
-            <HiPlusCircle className="w-5 h-5" />
-            <span>Create Admin Listing</span>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard/admin/users"
+              className="btn btn-sm bg-[var(--bg-card-subtle)] hover:bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)] font-bold rounded-xl px-4 flex items-center gap-1.5"
+            >
+              <HiUsers className="w-4 h-4 text-teal-500" />
+              <span>Manage Users</span>
+            </Link>
+
+            <Link
+              href="/dashboard/manage"
+              className="btn btn-sm bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl px-4 border-none shadow-md flex items-center gap-1.5"
+            >
+              <HiBuildingOffice2 className="w-4 h-4" />
+              <span>Manage Listings</span>
+            </Link>
+          </div>
         </div>
 
-        {/* Activity Stat Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+        {/* Dynamic Stat Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 sm:gap-6">
           <motion.div
             whileHover={{ y: -4 }}
-            className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-lg flex items-center gap-4"
+            className="p-5 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-lg flex items-center gap-4"
           >
-            <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-500 flex items-center justify-center">
-              <HiBuildingOffice2 className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-                Total Listings
-              </p>
-              <p className="text-3xl font-black text-[var(--text-main)] mt-0.5">15,420</p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            whileHover={{ y: -4 }}
-            className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-lg flex items-center gap-4"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-500 flex items-center justify-center shrink-0">
               <HiUsers className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+              <p className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                 Total Users
               </p>
-              <p className="text-3xl font-black text-[var(--text-main)] mt-0.5">8,950</p>
+              <p className="text-2xl font-black text-[var(--text-main)] mt-0.5">{stats.totalUsers}</p>
             </div>
           </motion.div>
 
           <motion.div
             whileHover={{ y: -4 }}
-            className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-lg flex items-center gap-4"
+            className="p-5 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-lg flex items-center gap-4"
           >
-            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
-              <HiChartBar className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+              <HiBuildingOffice2 className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-                Volume
+              <p className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                Total Properties
               </p>
-              <p className="text-3xl font-black text-[var(--text-main)] mt-0.5">$1.4B</p>
+              <p className="text-2xl font-black text-[var(--text-main)] mt-0.5">{stats.totalProperties}</p>
             </div>
           </motion.div>
 
           <motion.div
             whileHover={{ y: -4 }}
-            className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-lg flex items-center gap-4"
+            className="p-5 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-lg flex items-center gap-4"
           >
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-              <HiShieldCheck className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+              <HiClock className="w-6 h-6 animate-pulse" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-                AI Accuracy
+              <p className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                Pending Approvals
               </p>
-              <p className="text-3xl font-black text-[var(--text-main)] mt-0.5">99.4%</p>
+              <p className="text-2xl font-black text-amber-500 mt-0.5">{stats.pendingApprovals}</p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            whileHover={{ y: -4 }}
+            className="p-5 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-lg flex items-center gap-4"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+              <HiDocumentCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                Approved Active
+              </p>
+              <p className="text-2xl font-black text-emerald-500 mt-0.5">{stats.approvedProperties}</p>
             </div>
           </motion.div>
         </div>
 
-        {/* Administration Table Section */}
-        <div id="users" className="bg-[var(--bg-card)] border border-[var(--border-color)] p-8 rounded-3xl shadow-xl space-y-6">
+        {/* Pending Approvals Widget */}
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-6 sm:p-8 rounded-3xl shadow-xl space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-[var(--text-main)]">
-              System Property Moderation & Governance
-            </h2>
-            <span className="text-xs text-emerald-500 font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-              ● All Systems Operational
-            </span>
+            <div className="space-y-0.5">
+              <h2 className="text-xl font-bold text-[var(--text-main)] flex items-center gap-2">
+                <HiClock className="w-5 h-5 text-amber-500" /> Pending Property Approvals ({pendingListings.length})
+              </h2>
+              <p className="text-xs text-[var(--text-muted)]">
+                Properties listed by users that require admin review before publishing live on the Explore page.
+              </p>
+            </div>
+
+            <Link href="/dashboard/manage" className="text-xs font-bold text-teal-500 hover:underline flex items-center gap-1">
+              View All Listings <HiArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
-          <div className="p-10 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-sm text-[var(--text-muted)] leading-relaxed">
-            🛡️ Admin Control Panel Active: As a Super Admin, you have full access to platform-wide metrics, system moderation, and user role overrides.
-          </div>
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+              <p className="text-xs text-[var(--text-muted)]">Loading pending approvals...</p>
+            </div>
+          ) : pendingListings.length === 0 ? (
+            <div className="p-10 text-center border-2 border-dashed border-[var(--border-color)] rounded-2xl space-y-2">
+              <HiCheckCircle className="w-10 h-10 text-emerald-500 mx-auto" />
+              <p className="text-base font-bold text-[var(--text-main)]">All property submissions are reviewed!</p>
+              <p className="text-xs text-[var(--text-muted)]">There are no pending listings requiring approval right now.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {pendingListings.map((prop) => {
+                const propId = prop._id || prop.id;
+                const coverImage =
+                  prop.image ||
+                  (Array.isArray(prop.images) && prop.images[0]) ||
+                  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750";
+                const displayPrice =
+                  typeof prop.price === "number"
+                    ? `$${prop.price.toLocaleString("en-US")}`
+                    : prop.formattedPrice || prop.price;
+
+                return (
+                  <div
+                    key={propId}
+                    className="p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex flex-col sm:flex-row gap-4 items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                      <img
+                        src={coverImage}
+                        alt={prop.title}
+                        className="w-16 h-16 rounded-xl object-cover shrink-0"
+                      />
+                      <div className="overflow-hidden">
+                        <h4 className="font-bold text-sm text-[var(--text-main)] truncate">
+                          {prop.title}
+                        </h4>
+                        <p className="text-xs text-[var(--text-muted)] truncate flex items-center gap-1">
+                          <HiMapPin className="w-3.5 h-3.5 text-teal-500" /> {prop.location}
+                        </p>
+                        <p className="text-xs font-extrabold text-teal-500 mt-0.5">
+                          {displayPrice} • <span className="text-[var(--text-muted)] font-normal">By {prop.sellerName}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end border-t sm:border-t-0 border-[var(--border-color)] pt-3 sm:pt-0">
+                      <button
+                        onClick={() => handleStatusChange(propId, "Approved")}
+                        className="btn btn-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg border-none flex items-center gap-1"
+                      >
+                        <HiCheckCircle className="w-3.5 h-3.5" /> Approve
+                      </button>
+
+                      <button
+                        onClick={() => handleStatusChange(propId, "Rejected")}
+                        className="btn btn-xs bg-red-600/20 hover:bg-red-600/30 text-red-500 font-bold rounded-lg border border-red-500/30 flex items-center gap-1"
+                      >
+                        <HiXCircle className="w-3.5 h-3.5" /> Reject
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </RoleGuard>
