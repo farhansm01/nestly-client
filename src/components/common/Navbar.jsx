@@ -39,13 +39,17 @@ export default function Navbar() {
     }
   };
 
-  const navLinks = [
+  const allNavLinks = [
     { name: "Home", href: "/" },
     { name: "Explore Properties", href: "/items" },
-    { name: "AI Features", href: "/ai-features" },
+    { name: "AI Features", href: "/ai-features", requiresAuth: true },
     { name: "About Us", href: "/about" },
     { name: "Contact Us", href: "/contact" },
   ];
+
+  // Filter private links for guests
+  const navLinks = allNavLinks.filter((link) => !link.requiresAuth || !!user);
+
 
   const isActive = (path) => pathname === path;
 

@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
+import { useAuth } from "@/components/providers/AuthProvider";
 import {
   getAIPropertyRecommendations,
   auditAIDocumentText,
@@ -94,6 +96,10 @@ const FormattedChatMessage = ({ text, isUser }) => {
 };
 
 export default function AIFeaturesPage() {
+  const { user, isPending } = useAuth();
+  const router = useRouter();
+
+  // ALL state hooks MUST be declared before any early return (Rules of Hooks)
   const [activeTab, setActiveTab] = useState("recommendations");
 
   // Tab 1: Recommendation States
@@ -120,12 +126,32 @@ export default function AIFeaturesPage() {
   const [inputMessage, setInputMessage] = useState("");
   const [sendingMsg, setSendingMsg] = useState(false);
 
+  // Redirect guests to login
+  useEffect(() => {
+    if (!isPending && !user) {
+      router.push("/login");
+    }
+  }, [user, isPending, router]);
+
+  // Show spinner while checking auth or redirect in progress
+  if (isPending || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-14 h-14 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-medium text-[var(--text-muted)]">Loading AI Suite...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Toggle amenity selection
   const toggleLifestyle = (tag) => {
     setSelectedLifestyle((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
   };
+
 
   // Load initial recommendations
   const handleFetchRecommendations = async () => {
