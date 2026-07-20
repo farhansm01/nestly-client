@@ -58,6 +58,7 @@ export default function DashboardLayout({ children }) {
       { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
       { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
       { name: "Saved Homes", href: "/dashboard/saved", icon: HiHeart },
+      { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
     ];
   } else {
     // Default Buyer (No Add Property or Manage Listings)
