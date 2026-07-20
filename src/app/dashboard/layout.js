@@ -49,24 +49,21 @@ export default function DashboardLayout({ children }) {
       { name: "Overview", href: "/dashboard/admin", icon: HiSquares2X2 },
       { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
       { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
+      { name: "Saved Homes", href: "/dashboard/saved", icon: HiHeart },
       { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
-      { name: "User Roles", href: "/dashboard/admin#users", icon: HiUsers },
-      { name: "Platform Analytics", href: "/dashboard/admin#analytics", icon: HiChartBar },
     ];
   } else if (userRole === "seller" || userRole === "agent") {
     navItems = [
       { name: "Overview", href: "/dashboard/seller", icon: HiSquares2X2 },
       { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
       { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
-      { name: "Inquiries", href: "/dashboard/seller#inquiries", icon: HiDocumentText },
+      { name: "Saved Homes", href: "/dashboard/saved", icon: HiHeart },
     ];
   } else {
-    // Default Buyer
+    // Default Buyer (No Add Property or Manage Listings)
     navItems = [
       { name: "Overview", href: "/dashboard/buyer", icon: HiSquares2X2 },
-      { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
-      { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
-      { name: "Saved Homes", href: "/dashboard/buyer#saved", icon: HiHeart },
+      { name: "Saved Homes", href: "/dashboard/saved", icon: HiHeart },
       { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
     ];
   }

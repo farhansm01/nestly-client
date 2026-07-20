@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import {
   HiBuildingOffice2,
   HiMapPin,
@@ -14,6 +16,34 @@ export default function PropertyCard({ property }) {
   if (!property) return null;
 
   const propId = property._id || property.id;
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("nestly_saved_properties") || "[]");
+      setIsSaved(stored.includes(propId));
+    } catch (e) {}
+  }, [propId]);
+
+  const toggleSave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const stored = JSON.parse(localStorage.getItem("nestly_saved_properties") || "[]");
+      let updated = [];
+      if (stored.includes(propId)) {
+        updated = stored.filter((id) => id !== propId);
+        setIsSaved(false);
+        toast.success("Removed from Saved Homes");
+      } else {
+        updated = [...stored, propId];
+        setIsSaved(true);
+        toast.success("Saved to your Favorites!");
+      }
+      localStorage.setItem("nestly_saved_properties", JSON.stringify(updated));
+    } catch (err) {}
+  };
+
   const coverImage =
     property.image ||
     (Array.isArray(property.images) && property.images[0]) ||
@@ -53,11 +83,16 @@ export default function PropertyCard({ property }) {
 
           <button
             type="button"
-            className="w-9 h-9 rounded-full bg-slate-900/70 backdrop-blur-md text-white hover:text-red-500 hover:bg-slate-900 flex items-center justify-center transition-colors pointer-events-auto shadow-md"
-            title="Save Property"
+            onClick={toggleSave}
+            className={`w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center transition-all pointer-events-auto shadow-md ${
+              isSaved
+                ? "bg-red-600 text-white"
+                : "bg-slate-900/70 text-white hover:text-red-500 hover:bg-slate-900"
+            }`}
+            title={isSaved ? "Remove from Saved" : "Save Property"}
             aria-label="Save Property"
           >
-            <HiHeart className="w-5 h-5" />
+            <HiHeart className={`w-5 h-5 ${isSaved ? "fill-white" : ""}`} />
           </button>
         </div>
 
