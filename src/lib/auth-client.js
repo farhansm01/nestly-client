@@ -2,14 +2,20 @@ import { createAuthClient } from "better-auth/react";
 
 /**
  * BetterAuth Client Configuration for nestly-client
- * Pinned to v1.6.11 as per AGENTS.md requirements
+ * Dynamic baseURL fallback automatically adapts to Vercel production domain
  */
+const getBaseURL = () => {
+  if (process.env.NEXT_PUBLIC_BETTER_AUTH_URL) {
+    return process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+  }
+  if (typeof window !== "undefined" && window.location.origin) {
+    return window.location.origin;
+  }
+  return "https://nestly-client-silk.vercel.app";
+};
+
 export const authClient = createAuthClient({
-  baseURL:
-    process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
-    process.env.NEXT_PUBLIC_SERVER_URL ||
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    "http://localhost:3000",
+  baseURL: getBaseURL(),
 });
 
 export const {

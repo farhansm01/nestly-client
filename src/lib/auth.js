@@ -5,10 +5,17 @@ import clientPromise from "@/lib/db";
 const client = await clientPromise;
 const db = client.db("nestify");
 
+const getBaseURL = () => {
+  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
+  if (process.env.NEXT_PUBLIC_BETTER_AUTH_URL) return process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+  if (typeof window !== "undefined" && window.location.origin) return window.location.origin;
+  return "https://nestly-client-silk.vercel.app";
+};
+
 export const auth = betterAuth({
   database: mongodbAdapter(db),
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL: getBaseURL(),
   emailAndPassword: {
     enabled: true,
   },
