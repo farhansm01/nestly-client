@@ -363,7 +363,7 @@ export default function DashboardManageListingsPage() {
                   </button>
                 </div>
 
-                <form onSubmit={handleEditSave} className="space-y-4">
+                <form onSubmit={handleEditSave} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
                       Property Title
@@ -371,34 +371,152 @@ export default function DashboardManageListingsPage() {
                     <input
                       type="text"
                       required
-                      value={editingProperty.title}
+                      value={editingProperty.title || ""}
                       onChange={(e) => setEditingProperty({ ...editingProperty, title: e.target.value })}
                       className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
                     />
                   </div>
 
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
+                        Property Type
+                      </label>
+                      <select
+                        value={editingProperty.type || "apartment"}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, type: e.target.value })}
+                        className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
+                      >
+                        <option value="apartment">Apartment</option>
+                        <option value="villa">Villa</option>
+                        <option value="penthouse">Penthouse</option>
+                        <option value="suburban">Suburban</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
+                        Price ($)
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        value={editingProperty.price || ""}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, price: e.target.value })}
+                        className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
+                        Location / Address
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editingProperty.location || ""}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, location: e.target.value })}
+                        className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        value={editingProperty.city || ""}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, city: e.target.value })}
+                        className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--text-muted)] uppercase mb-1">
+                        Beds
+                      </label>
+                      <input
+                        type="number"
+                        value={editingProperty.beds || 0}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, beds: e.target.value })}
+                        className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--text-muted)] uppercase mb-1">
+                        Baths
+                      </label>
+                      <input
+                        type="number"
+                        value={editingProperty.baths || 0}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, baths: e.target.value })}
+                        className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--text-muted)] uppercase mb-1">
+                        Sqft
+                      </label>
+                      <input
+                        type="text"
+                        value={editingProperty.sqft || ""}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, sqft: e.target.value })}
+                        className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--text-muted)] uppercase mb-1">
+                        Year Built
+                      </label>
+                      <input
+                        type="text"
+                        value={editingProperty.yearBuilt || ""}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, yearBuilt: e.target.value })}
+                        className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
-                      Price
+                      Main Image URL
                     </label>
                     <input
                       type="text"
-                      required
-                      value={editingProperty.price}
-                      onChange={(e) => setEditingProperty({ ...editingProperty, price: e.target.value })}
+                      value={editingProperty.image || ""}
+                      onChange={(e) => setEditingProperty({ ...editingProperty, image: e.target.value })}
                       className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
                     />
                   </div>
 
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
-                      Location
+                      Short Description
                     </label>
-                    <input
-                      type="text"
-                      required
-                      value={editingProperty.location}
-                      onChange={(e) => setEditingProperty({ ...editingProperty, location: e.target.value })}
+                    <textarea
+                      rows={2}
+                      value={editingProperty.shortDesc || ""}
+                      onChange={(e) => setEditingProperty({ ...editingProperty, shortDesc: e.target.value })}
+                      className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
+                      Full Description
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={editingProperty.fullDesc || ""}
+                      onChange={(e) => setEditingProperty({ ...editingProperty, fullDesc: e.target.value })}
                       className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
                     />
                   </div>

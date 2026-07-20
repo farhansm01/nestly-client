@@ -276,52 +276,43 @@ export default function AdminManageUsersPage() {
                         </td>
 
                         <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
-                          {/* Toggle Status (Restrict / Unrestrict) */}
-                          <button
-                            onClick={() => handleStatusToggle(targetUser)}
-                            className={`p-1.5 rounded-xl border text-xs font-bold inline-flex items-center gap-1 transition-colors ${
-                              isRestricted
-                                ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/30"
-                                : "bg-red-500/10 text-red-500 hover:bg-red-500/20 border-red-500/30"
-                            }`}
-                            title={isRestricted ? "Unrestrict User" : "Restrict / Ban User"}
-                          >
-                            {isRestricted ? (
-                              <>
-                                <HiCheckCircle className="w-4 h-4" /> Unrestrict
-                              </>
-                            ) : (
-                              <>
-                                <HiNoSymbol className="w-4 h-4" /> Restrict
-                              </>
-                            )}
-                          </button>
+                          {isAdminUser ? (
+                            <span className="text-[10px] font-bold text-[var(--text-muted)] italic px-2">
+                              Protected Admin
+                            </span>
+                          ) : (
+                            <>
+                              {/* Toggle Status (Restrict / Unrestrict) */}
+                              <button
+                                onClick={() => handleStatusToggle(targetUser)}
+                                className={`p-1.5 rounded-xl border text-xs font-bold inline-flex items-center gap-1 transition-colors ${
+                                  isRestricted
+                                    ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/30"
+                                    : "bg-red-500/10 text-red-500 hover:bg-red-500/20 border-red-500/30"
+                                }`}
+                                title={isRestricted ? "Unrestrict User" : "Restrict / Ban User"}
+                              >
+                                {isRestricted ? (
+                                  <>
+                                    <HiCheckCircle className="w-4 h-4" /> Unrestrict
+                                  </>
+                                ) : (
+                                  <>
+                                    <HiNoSymbol className="w-4 h-4" /> Restrict
+                                  </>
+                                )}
+                              </button>
 
-                          {/* Toggle Role (Make Admin / Make User) */}
-                          <button
-                            onClick={() => handleRoleToggle(targetUser)}
-                            className="p-1.5 rounded-xl bg-[var(--bg-card-subtle)] text-[var(--text-muted)] hover:text-amber-500 border border-[var(--border-color)] text-xs font-bold inline-flex items-center gap-1"
-                            title={isAdminUser ? "Demote to User" : "Promote to Admin"}
-                          >
-                            {isAdminUser ? (
-                              <>
-                                <HiUserMinus className="w-4 h-4 text-amber-500" /> Remove Admin
-                              </>
-                            ) : (
-                              <>
-                                <HiUserPlus className="w-4 h-4 text-teal-500" /> Make Admin
-                              </>
-                            )}
-                          </button>
-
-                          {/* Delete Account */}
-                          <button
-                            onClick={() => setDeletingUserId(userId)}
-                            className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 inline-flex"
-                            title="Delete User Account"
-                          >
-                            <HiTrash className="w-4 h-4" />
-                          </button>
+                              {/* Delete Account */}
+                              <button
+                                onClick={() => setDeletingUserId(userId)}
+                                className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 inline-flex"
+                                title="Delete User Account"
+                              >
+                                <HiTrash className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
                         </td>
                       </tr>
                     );
