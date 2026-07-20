@@ -1,18 +1,26 @@
 /**
  * Shared API fetch wrapper for nestly-client
- * Connects to the Nestly backend server using process.env.NEXT_PUBLIC_SERVER_URL
+ * Connects to the Nestly backend server (https://nestly-server-sigma.vercel.app in production)
  */
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  "http://localhost:5000";
+const getBackendServerURL = () => {
+  const envUrl = process.env.NEXT_PUBLIC_SERVER_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl && !envUrl.includes("localhost")) {
+    return envUrl;
+  }
+  if (typeof window !== "undefined" && !window.location?.hostname?.includes("localhost")) {
+    return "https://nestly-server-sigma.vercel.app";
+  }
+  return "http://localhost:5000";
+};
 
 const INTERNAL_SECRET =
   process.env.NEXT_PUBLIC_INTERNAL_API_SECRET || "resellhub_internal_secret_2026";
 
 export async function fetcher(endpoint, options = {}) {
   const { headers, query, body, ...customConfig } = options;
+
+  const baseUrl = getBackendServerURL();
 
   // Build query string if query object provided
   let queryString = "";
@@ -29,7 +37,7 @@ export async function fetcher(endpoint, options = {}) {
 
   // Ensure clean path join
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-  const url = `${BASE_URL}${cleanEndpoint}${queryString}`;
+  const url = `${baseUrl}${cleanEndpoint}${queryString}`;
 
   const defaultHeaders = {
     "Content-Type": "application/json",
