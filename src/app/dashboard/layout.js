@@ -50,6 +50,7 @@ export default function DashboardLayout({ children }) {
       { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
       { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
       { name: "Saved Homes", href: "/dashboard/saved", icon: HiHeart },
+      { name: "AI Features", href: "/ai-features", icon: HiSparkles },
       { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
     ];
   } else if (userRole === "seller" || userRole === "agent") {
@@ -58,6 +59,7 @@ export default function DashboardLayout({ children }) {
       { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
       { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
       { name: "Saved Homes", href: "/dashboard/saved", icon: HiHeart },
+      { name: "AI Features", href: "/ai-features", icon: HiSparkles },
       { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
     ];
   } else {
@@ -65,6 +67,7 @@ export default function DashboardLayout({ children }) {
     navItems = [
       { name: "Overview", href: "/dashboard/buyer", icon: HiSquares2X2 },
       { name: "Saved Homes", href: "/dashboard/saved", icon: HiHeart },
+      { name: "AI Features", href: "/ai-features", icon: HiSparkles },
       { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
     ];
   }
