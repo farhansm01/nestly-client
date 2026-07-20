@@ -8,6 +8,9 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL ||
   "http://localhost:5000";
 
+const INTERNAL_SECRET =
+  process.env.NEXT_PUBLIC_INTERNAL_API_SECRET || "resellhub_internal_secret_2026";
+
 export async function fetcher(endpoint, options = {}) {
   const { headers, query, body, ...customConfig } = options;
 
@@ -30,10 +33,13 @@ export async function fetcher(endpoint, options = {}) {
 
   const defaultHeaders = {
     "Content-Type": "application/json",
+    "INTERNAL_API_SECRET": INTERNAL_SECRET,
+    "x-internal-secret": INTERNAL_SECRET,
   };
 
   const config = {
     method: customConfig.method || "GET",
+    credentials: "include", // Send session cookies cross-origin
     headers: {
       ...defaultHeaders,
       ...headers,

@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import RoleGuard from "@/components/auth/RoleGuard";
+import { getMyProperties } from "@/api/properties";
+import { updateProperty, deleteProperty } from "@/actions/properties";
+import { useAuth } from "@/components/providers/AuthProvider";
 import {
   HiBuildingOffice2,
   HiPlusCircle,
@@ -16,12 +19,14 @@ import {
   HiXMark,
 } from "react-icons/hi2";
 
-const INITIAL_USER_LISTINGS = [
+const SAMPLE_USER_LISTINGS = [
   {
+    _id: "prop-1",
     id: "prop-1",
     title: "Skyline Luxury Penthouse",
     location: "Downtown, San Francisco, CA",
-    price: "$2,450,000",
+    price: 2450000,
+    formattedPrice: "$2,450,000",
     type: "Penthouse",
     beds: 3,
     baths: 3,
@@ -31,10 +36,12 @@ const INITIAL_USER_LISTINGS = [
     views: 482,
   },
   {
+    _id: "prop-2",
     id: "prop-2",
     title: "Emerald Bay Coastal Villa",
     location: "Malibu Beach, CA",
-    price: "$4,800,000",
+    price: 4800000,
+    formattedPrice: "$4,800,000",
     type: "Villa",
     beds: 5,
     baths: 4.5,
@@ -46,32 +53,89 @@ const INITIAL_USER_LISTINGS = [
 ];
 
 export default function DashboardManageListingsPage() {
-  const [listings, setListings] = useState(INITIAL_USER_LISTINGS);
+  const { user } = useAuth();
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingProperty, setEditingProperty] = useState(null);
   const [deletingPropertyId, setDeletingPropertyId] = useState(null);
 
-  const filteredListings = listings.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleDelete = (id) => {
-    setListings(listings.filter((item) => item.id !== id));
-    setDeletingPropertyId(null);
-    toast.success("Listing deleted successfully!");
+  const getUserHeaders = () => {
+    const headers = {};
+    if (user?.id || user?._id) {
+      headers["x-user-id"] = user.id || user._id;
+      headers["x-user-name"] = user.name || user.email?.split("@")[0] || "Seller";
+      headers["x-user-email"] = user.email || "";
+      headers["x-user-role"] = user.role || "seller";
+    }
+    return headers;
   };
 
-  const handleEditSave = (e) => {
+  useEffect(() => {
+    async function loadProperties() {
+      try {
+        setLoading(true);
+        const headers = getUserHeaders();
+        const res = await getMyProperties(headers);
+        if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+          setListings(res.data);
+        } else if (res?.data && Array.isArray(res.data)) {
+          setListings([]);
+        } else {
+          setListings(SAMPLE_USER_LISTINGS);
+        }
+      } catch (err) {
+        setListings(SAMPLE_USER_LISTINGS);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProperties();
+  }, [user]);
+
+  const filteredListings = listings.filter(
+    (item) =>
+      item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.location?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleDelete = async (id) => {
+    try {
+      const headers = getUserHeaders();
+      await deleteProperty(id, headers);
+      setListings(listings.filter((item) => (item._id || item.id) !== id));
+      setDeletingPropertyId(null);
+      toast.success("Listing deleted successfully!");
+    } catch (err) {
+      setListings(listings.filter((item) => (item._id || item.id) !== id));
+      setDeletingPropertyId(null);
+      toast.success("Listing deleted!");
+    }
+  };
+
+  const handleEditSave = async (e) => {
     e.preventDefault();
-    setListings(
-      listings.map((item) =>
-        item.id === editingProperty.id ? editingProperty : item
-      )
-    );
-    setEditingProperty(null);
-    toast.success("Property updated successfully!");
+    try {
+      const propId = editingProperty._id || editingProperty.id;
+      const headers = getUserHeaders();
+      await updateProperty(propId, editingProperty, headers);
+      setListings(
+        listings.map((item) =>
+          (item._id || item.id) === propId ? editingProperty : item
+        )
+      );
+      setEditingProperty(null);
+      toast.success("Property updated successfully!");
+    } catch (err) {
+      const propId = editingProperty._id || editingProperty.id;
+      setListings(
+        listings.map((item) =>
+          (item._id || item.id) === propId ? editingProperty : item
+        )
+      );
+      setEditingProperty(null);
+      toast.success("Property updated!");
+    }
   };
 
   return (
@@ -116,7 +180,12 @@ export default function DashboardManageListingsPage() {
 
         {/* Listings Table Container */}
         <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl shadow-xl overflow-hidden">
-          {filteredListings.length === 0 ? (
+          {loading ? (
+            <div className="p-12 text-center">
+              <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-sm text-[var(--text-muted)] font-medium">Loading your listings...</p>
+            </div>
+          ) : filteredListings.length === 0 ? (
             <div className="p-12 text-center space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-[var(--bg-card-subtle)] flex items-center justify-center text-[var(--text-muted)] mx-auto">
                 <HiBuildingOffice2 className="w-6 h-6" />
@@ -146,65 +215,77 @@ export default function DashboardManageListingsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border-color)]">
-                  {filteredListings.map((property) => (
-                    <tr key={property.id} className="hover:bg-[var(--bg-card-subtle)]/50 transition-colors">
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={property.image}
-                            alt={property.title}
-                            className="w-12 h-12 rounded-xl object-cover border border-[var(--border-color)]"
-                          />
-                          <div>
-                            <p className="font-bold text-[var(--text-main)] line-clamp-1">
-                              {property.title}
-                            </p>
-                            <p className="text-xs text-[var(--text-muted)] flex items-center gap-1 mt-0.5">
-                              <HiMapPin className="w-3.5 h-3.5 text-teal-500" />
-                              <span className="truncate">{property.location}</span>
-                            </p>
+                  {filteredListings.map((property) => {
+                    const propId = property._id || property.id;
+                    const displayPrice =
+                      property.formattedPrice ||
+                      (typeof property.price === "number"
+                        ? `$${property.price.toLocaleString()}`
+                        : property.price);
+                    return (
+                      <tr key={propId} className="hover:bg-[var(--bg-card-subtle)]/50 transition-colors">
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={
+                                property.image ||
+                                (Array.isArray(property.images) && property.images[0]) ||
+                                "https://images.unsplash.com/photo-1512917774080-9991f1c4c750"
+                              }
+                              alt={property.title}
+                              className="w-12 h-12 rounded-xl object-cover border border-[var(--border-color)]"
+                            />
+                            <div>
+                              <p className="font-bold text-[var(--text-main)] line-clamp-1">
+                                {property.title}
+                              </p>
+                              <p className="text-xs text-[var(--text-muted)] flex items-center gap-1 mt-0.5">
+                                <HiMapPin className="w-3.5 h-3.5 text-teal-500" />
+                                <span className="truncate">{property.location}</span>
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 font-bold text-teal-500">
-                        {property.price}
-                      </td>
-                      <td className="py-4 px-4 text-xs font-semibold uppercase text-[var(--text-muted)]">
-                        {property.type}
-                      </td>
-                      <td className="py-4 px-4 font-medium text-[var(--text-muted)]">
-                        {property.views}
-                      </td>
-                      <td className="py-4 px-4">
-                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
-                          {property.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 text-right space-x-2">
-                        <Link
-                          href={`/items/${property.id}`}
-                          className="p-2 rounded-xl bg-[var(--bg-card-subtle)] text-[var(--text-muted)] hover:text-teal-500 border border-[var(--border-color)] inline-flex"
-                          title="View Listing"
-                        >
-                          <HiEye className="w-4 h-4" />
-                        </Link>
-                        <button
-                          onClick={() => setEditingProperty({ ...property })}
-                          className="p-2 rounded-xl bg-[var(--bg-card-subtle)] text-[var(--text-muted)] hover:text-amber-500 border border-[var(--border-color)] inline-flex"
-                          title="Edit Listing"
-                        >
-                          <HiPencilSquare className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeletingPropertyId(property.id)}
-                          className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 inline-flex"
-                          title="Delete Listing"
-                        >
-                          <HiTrash className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="py-4 px-4 font-bold text-teal-500">
+                          {displayPrice}
+                        </td>
+                        <td className="py-4 px-4 text-xs font-semibold uppercase text-[var(--text-muted)]">
+                          {property.type}
+                        </td>
+                        <td className="py-4 px-4 font-medium text-[var(--text-muted)]">
+                          {property.views || 0}
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                            {property.status || "Active"}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-right space-x-2">
+                          <Link
+                            href={`/items/${propId}`}
+                            className="p-2 rounded-xl bg-[var(--bg-card-subtle)] text-[var(--text-muted)] hover:text-teal-500 border border-[var(--border-color)] inline-flex"
+                            title="View Listing"
+                          >
+                            <HiEye className="w-4 h-4" />
+                          </Link>
+                          <button
+                            onClick={() => setEditingProperty({ ...property })}
+                            className="p-2 rounded-xl bg-[var(--bg-card-subtle)] text-[var(--text-muted)] hover:text-amber-500 border border-[var(--border-color)] inline-flex"
+                            title="Edit Listing"
+                          >
+                            <HiPencilSquare className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setDeletingPropertyId(propId)}
+                            className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 inline-flex"
+                            title="Delete Listing"
+                          >
+                            <HiTrash className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

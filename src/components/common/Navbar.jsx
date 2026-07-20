@@ -42,7 +42,7 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Explore Properties", href: "/items" },
-    { name: "AI Features", href: "/#ai-features" },
+    { name: "AI Features", href: "/ai-features" },
     { name: "About Us", href: "/about" },
     { name: "Contact Us", href: "/contact" },
   ];

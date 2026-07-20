@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import RoleGuard from "@/components/auth/RoleGuard";
+import ImageUploader from "@/components/common/ImageUploader";
+import { createProperty } from "@/actions/properties";
+import { useAuth } from "@/components/providers/AuthProvider";
 import {
   HiBuildingOffice2,
-  HiCurrencyDollar,
   HiMapPin,
   HiSparkles,
   HiPhoto,
@@ -27,6 +29,7 @@ const AMENITIES_LIST = [
 
 export default function DashboardAddPropertyPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [type, setType] = useState("apartment");
@@ -38,7 +41,7 @@ export default function DashboardAddPropertyPage() {
   const [baths, setBaths] = useState("2");
   const [sqft, setSqft] = useState("1850");
   const [yearBuilt, setYearBuilt] = useState("2024");
-  const [imageUrl, setImageUrl] = useState("");
+  const [images, setImages] = useState([]);
   const [selectedAmenities, setSelectedAmenities] = useState([
     "24/7 Security",
     "Private Balcony",
@@ -59,14 +62,21 @@ export default function DashboardAddPropertyPage() {
       return;
     }
 
+    if (images.length === 0) {
+      toast.error("Please upload or add at least 1 image for the listing");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      // Construct new property payload
+      const primaryCover = images[0];
+
+      // Construct property payload matching server API
       const propertyData = {
         title,
         type,
-        price: `$${Number(price).toLocaleString()}`,
+        price: Number(price),
         location,
         shortDesc,
         fullDesc,
@@ -74,17 +84,23 @@ export default function DashboardAddPropertyPage() {
         baths: Number(baths),
         sqft: `${sqft} sqft`,
         yearBuilt,
-        image:
-          imageUrl ||
-          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+        image: primaryCover,
+        images: images,
+        gallery: images,
         amenities: selectedAmenities,
-        createdAt: new Date().toISOString(),
       };
 
-      // Simulating API action call / src/actions/properties.js
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const headers = {};
+      if (user?.id || user?._id) {
+        headers["x-user-id"] = user.id || user._id;
+        headers["x-user-name"] = user.name || user.email?.split("@")[0] || "Seller";
+        headers["x-user-email"] = user.email || "";
+        headers["x-user-role"] = user.role || "seller";
+      }
 
-      toast.success("Property listing posted successfully!");
+      await createProperty(propertyData, headers);
+
+      toast.success("Property listing created with ImgBB images!");
       router.push("/dashboard/manage");
     } catch (err) {
       toast.error(err.message || "Failed to post property listing");
@@ -103,11 +119,11 @@ export default function DashboardAddPropertyPage() {
               Post New Property Listing
             </h1>
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-500 border border-teal-500/30">
-              Dashboard Portal
+              ImgBB Cloud Storage Active
             </span>
           </div>
           <p className="text-sm text-[var(--text-muted)]">
-            Create and publish a luxury real estate listing on Nestly AI platform.
+            Upload images to ImgBB CDN and publish a luxury real estate listing on Nestly AI platform.
           </p>
         </div>
 
@@ -273,26 +289,21 @@ export default function DashboardAddPropertyPage() {
             </div>
           </div>
 
-          {/* Media & Amenities Section */}
+          {/* ImgBB Image Uploader Section */}
           <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-6 sm:p-8 rounded-3xl shadow-xl space-y-6">
-            <h2 className="text-lg font-bold text-[var(--text-main)] flex items-center gap-2 border-b border-[var(--border-color)] pb-3">
-              <HiPhoto className="w-5 h-5 text-teal-500" /> Media & Amenities
-            </h2>
-
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
-                Main Image URL (Unsplash or ImgBB)
-              </label>
-              <input
-                type="url"
-                placeholder="https://images.unsplash.com/photo-..."
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-teal-500"
-              />
+            <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+              <h2 className="text-lg font-bold text-[var(--text-main)] flex items-center gap-2">
+                <HiPhoto className="w-5 h-5 text-teal-500" /> Property Images (ImgBB Cloud Storage)
+              </h2>
+              <span className="text-xs text-teal-500 font-semibold bg-teal-500/10 px-3 py-1 rounded-full border border-teal-500/20">
+                ImgBB Direct API Active
+              </span>
             </div>
 
-            <div>
+            <ImageUploader images={images} setImages={setImages} />
+
+            {/* Key Amenities */}
+            <div className="pt-4 border-t border-[var(--border-color)]">
               <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">
                 Key Amenities
               </label>
