@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { HiBuildingOffice2, HiSparkles, HiMapPin } from "react-icons/hi2";
+import { HiBuildingOffice2, HiSparkles, HiMapPin, HiEnvelope } from "react-icons/hi2";
+import { FaTwitter, FaLinkedin, FaFacebook, FaInstagram, FaGithub } from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -21,18 +22,61 @@ export default function Footer() {
                 </span>
               </div>
             </Link>
+
             <p className="text-sm text-[var(--text-muted)] max-w-sm leading-relaxed">
-              Empowering home buyers, sellers, and investors with AI-driven property valuations, intelligent matching, and verified real estate listings.
+              Empowering home buyers, sellers, and real estate investors with AI-driven property valuations, intelligent matching, and verified real estate listings.
             </p>
+
+            {/* Social Media Links */}
             <div className="flex items-center gap-3 pt-2">
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors">
-                <span className="text-sm font-semibold">X</span>
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors"
+                title="Twitter / X"
+              >
+                <FaTwitter className="w-4 h-4" />
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors">
-                <span className="text-sm font-semibold">in</span>
+
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors"
+                title="LinkedIn"
+              >
+                <FaLinkedin className="w-4 h-4" />
               </a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors">
-                <span className="text-sm font-semibold">f</span>
+
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors"
+                title="Facebook"
+              >
+                <FaFacebook className="w-4 h-4" />
+              </a>
+
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors"
+                title="Instagram"
+              >
+                <FaInstagram className="w-4 h-4" />
+              </a>
+
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-teal-500 hover:border-teal-500/50 transition-colors"
+                title="GitHub"
+              >
+                <FaGithub className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -40,7 +84,7 @@ export default function Footer() {
           {/* Quick Links */}
           <div>
             <h3 className="text-sm font-semibold text-[var(--text-main)] tracking-wider uppercase mb-4">
-              Explore
+              Explore Types
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
@@ -63,23 +107,33 @@ export default function Footer() {
                   Penthouses
                 </Link>
               </li>
+              <li>
+                <Link href="/items?type=suburban" className="hover:text-teal-500 transition-colors">
+                  Suburban Homes
+                </Link>
+              </li>
             </ul>
           </div>
 
           {/* Quick Platform Actions */}
           <div>
             <h3 className="text-sm font-semibold text-[var(--text-main)] tracking-wider uppercase mb-4">
-              Platform
+              Platform & Features
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/items/add" className="hover:text-teal-500 transition-colors">
-                  Add New Listing
+                <Link href="/ai-features" className="hover:text-teal-500 font-semibold text-amber-500 transition-colors flex items-center gap-1">
+                  <HiSparkles className="w-3.5 h-3.5" /> AI Features
                 </Link>
               </li>
               <li>
-                <Link href="/items/manage" className="hover:text-teal-500 transition-colors">
-                  Manage My Listings
+                <Link href="/dashboard/add" className="hover:text-teal-500 transition-colors">
+                  Post New Property
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard/manage" className="hover:text-teal-500 transition-colors">
+                  Manage Listings
                 </Link>
               </li>
               <li>
@@ -88,8 +142,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="hover:text-teal-500 transition-colors">
-                  Account Sign In
+                <Link href="/contact" className="hover:text-teal-500 transition-colors">
+                  Contact Support
                 </Link>
               </li>
             </ul>
@@ -106,8 +160,10 @@ export default function Footer() {
                 <span>742 Evergreen Terrace, San Francisco, CA</span>
               </li>
               <li className="flex items-center gap-2.5">
-                <span className="text-teal-500 font-semibold">@</span>
-                <span>support@nestly.ai</span>
+                <HiEnvelope className="w-5 h-5 text-teal-500 shrink-0" />
+                <a href="mailto:support@nestly.ai" className="hover:text-teal-500 transition-colors">
+                  support@nestly.ai
+                </a>
               </li>
             </ul>
           </div>
@@ -117,11 +173,11 @@ export default function Footer() {
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[var(--text-muted)]">
           <p>© {new Date().getFullYear()} Nestly AI Platform. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-[var(--text-main)] transition-colors">
-              Privacy Policy
+            <Link href="/about" className="hover:text-[var(--text-main)] transition-colors">
+              About Platform
             </Link>
-            <Link href="/terms" className="hover:text-[var(--text-main)] transition-colors">
-              Terms of Service
+            <Link href="/contact" className="hover:text-[var(--text-main)] transition-colors">
+              Help & Support
             </Link>
           </div>
         </div>

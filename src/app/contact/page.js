@@ -22,8 +22,8 @@ const FAQS = [
     a: "Create an account or sign in, navigate to your Dashboard, and click 'Add Property'. Fill in your property details and submit to publish your listing instantly.",
   },
   {
-    q: "What is Lease Document Intelligence?",
-    a: "Our document intelligence tool allows buyers and renters to upload complex lease agreements and receive automated key term summaries and risk flags.",
+    q: "What is Property Document Intelligence?",
+    a: "Our document intelligence tool allows buyers and sellers to upload complex property documents and receive automated key term summaries and risk flags.",
   },
   {
     q: "Is Nestly free for home buyers?",

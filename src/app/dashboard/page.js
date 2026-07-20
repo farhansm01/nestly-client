@@ -240,7 +240,7 @@ export default function UnifiedUserDashboardPage() {
               </div>
               <p className="text-base font-bold text-[var(--text-main)]">No property listings posted yet</p>
               <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
-                Have a home or apartment to sell or rent out? Post your listing to reach verified buyers.
+                Have a home or property to sell? Post your listing to reach verified buyers.
               </p>
               <Link
                 href="/dashboard/add"

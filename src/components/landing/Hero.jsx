@@ -90,7 +90,7 @@ export default function Hero() {
             variants={itemVariants}
             className="text-lg text-[var(--text-muted)] leading-relaxed font-normal max-w-2xl mx-auto"
           >
-            Discover curated luxury properties, intelligent price predictions, and seamless lease intelligence tailored to your lifestyle.
+            Discover curated luxury properties, intelligent price predictions, and smart property intelligence tailored to your lifestyle.
           </motion.p>
 
           {/* Search Card Container */}
@@ -111,14 +111,14 @@ export default function Hero() {
                 Buy Property
               </button>
               <button
-                onClick={() => setActiveTab("rent")}
+                onClick={() => setActiveTab("sell")}
                 className={`px-5 py-2 rounded-xl font-medium text-sm transition-all ${
-                  activeTab === "rent"
+                  activeTab === "sell"
                     ? "bg-teal-600 text-white shadow-md shadow-teal-900/40"
                     : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-card-subtle)]"
                 }`}
               >
-                Rent Property
+                Sell / List Property
               </button>
             </div>
 
@@ -157,18 +157,23 @@ export default function Hero() {
                     <option value="apartment" className="bg-[var(--bg-card)] text-[var(--text-main)]">Apartment</option>
                     <option value="villa" className="bg-[var(--bg-card)] text-[var(--text-main)]">Villa</option>
                     <option value="penthouse" className="bg-[var(--bg-card)] text-[var(--text-main)]">Penthouse</option>
+                    <option value="suburban" className="bg-[var(--bg-card)] text-[var(--text-main)]">Suburban Home</option>
                   </select>
                 </div>
               </div>
 
-              {/* Submit CTA Button with Motion Tap */}
+              {/* Submit CTA Button */}
               <motion.div whileTap={{ scale: 0.97 }} className="h-full">
                 <Link
-                  href={`/items?type=${propertyType}&location=${encodeURIComponent(searchLocation)}`}
+                  href={
+                    activeTab === "sell"
+                      ? "/dashboard/add"
+                      : `/items?type=${propertyType === "all" ? "" : propertyType}&search=${encodeURIComponent(searchLocation)}`
+                  }
                   className="btn h-full bg-gradient-to-r from-teal-500 to-amber-500 hover:from-teal-400 hover:to-amber-400 border-none text-slate-950 font-bold text-base rounded-2xl flex items-center justify-center gap-2 shadow-lg"
                 >
                   <HiMagnifyingGlass className="w-5 h-5 text-slate-950" />
-                  <span>Search Properties</span>
+                  <span>{activeTab === "sell" ? "Post Your Listing" : "Search Properties"}</span>
                 </Link>
               </motion.div>
             </div>

@@ -77,18 +77,32 @@ const SAMPLE_FALLBACK_PROPERTIES = [
   },
 ];
 
-export default function ExplorePropertiesPage() {
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+
+function ExplorePropertiesContent() {
+  const searchParams = useSearchParams();
+  const initialType = searchParams.get("type") || "";
+  const initialSearch = searchParams.get("search") || searchParams.get("location") || "";
+
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Filter & Search states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState("");
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [selectedType, setSelectedType] = useState(initialType);
   const [priceRange, setPriceRange] = useState("all");
   const [minBeds, setMinBeds] = useState("0");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8);
+
+  useEffect(() => {
+    const typeFromUrl = searchParams.get("type");
+    const searchFromUrl = searchParams.get("search") || searchParams.get("location");
+    if (typeFromUrl !== null) setSelectedType(typeFromUrl);
+    if (searchFromUrl !== null) setSearchTerm(searchFromUrl);
+  }, [searchParams]);
 
   useEffect(() => {
     async function loadData() {
@@ -411,5 +425,19 @@ export default function ExplorePropertiesPage() {
         )}
       </section>
     </div>
+  );
+}
+
+export default function ExplorePropertiesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-12 text-center text-teal-500 font-bold">
+          Loading Explore Marketplace...
+        </div>
+      }
+    >
+      <ExplorePropertiesContent />
+    </Suspense>
   );
 }
