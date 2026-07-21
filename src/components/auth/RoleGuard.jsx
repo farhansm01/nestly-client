@@ -14,8 +14,8 @@ export default function RoleGuard({ children, allowedRoles = ["user", "buyer", "
         router.push("/login");
       } else {
         const userRole = user.role || "user";
-        // Super admin has permission to access all dashboard tools
-        const isAuthorized = userRole === "admin" || allowedRoles.includes(userRole);
+        // Check if user's role is strictly allowed for this route
+        const isAuthorized = allowedRoles.includes(userRole);
         if (!isAuthorized) {
           router.push("/unauthorized");
         }
@@ -37,7 +37,7 @@ export default function RoleGuard({ children, allowedRoles = ["user", "buyer", "
   }
 
   const userRole = user.role || "user";
-  const isAuthorized = userRole === "admin" || allowedRoles.includes(userRole);
+  const isAuthorized = allowedRoles.includes(userRole);
   if (!isAuthorized) {
     return null;
   }

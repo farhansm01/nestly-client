@@ -47,7 +47,6 @@ export default function DashboardLayout({ children }) {
     navItems = [
       { name: "Overview", href: "/dashboard/admin", icon: HiSquares2X2 },
       { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
-      { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
       { name: "Manage Users", href: "/dashboard/admin/users", icon: HiUsers },
       { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
     ];
