@@ -15,28 +15,42 @@ export default function BuyerDashboardPage() {
   const [savedHomes, setSavedHomes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadBuyerData() {
-      try {
-        setLoading(true);
-        const storedIds = JSON.parse(localStorage.getItem("nestly_saved_properties") || "[]");
-        const res = await getProperties({ limit: 50 });
+  const loadBuyerData = async () => {
+    try {
+      setLoading(true);
+      const storedIds = JSON.parse(localStorage.getItem("nestly_saved_properties") || "[]");
 
-        if (res?.data && Array.isArray(res.data)) {
-          if (storedIds.length > 0) {
-            const filtered = res.data.filter((p) => storedIds.includes(p._id || p.id));
-            setSavedHomes(filtered.length > 0 ? filtered : res.data.slice(0, 3));
-          } else {
-            setSavedHomes(res.data.slice(0, 3));
-          }
-        }
-      } catch (err) {
+      if (storedIds.length === 0) {
         setSavedHomes([]);
-      } finally {
         setLoading(false);
+        return;
       }
+
+      const res = await getProperties({ limit: 50 });
+      if (res?.data && Array.isArray(res.data)) {
+        const filtered = res.data.filter((p) => storedIds.includes(p._id || p.id));
+        setSavedHomes(filtered);
+      } else {
+        setSavedHomes([]);
+      }
+    } catch (err) {
+      setSavedHomes([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadBuyerData();
+
+    const handleSavedUpdated = () => loadBuyerData();
+    window.addEventListener("nestly_saved_updated", handleSavedUpdated);
+    window.addEventListener("storage", handleSavedUpdated);
+
+    return () => {
+      window.removeEventListener("nestly_saved_updated", handleSavedUpdated);
+      window.removeEventListener("storage", handleSavedUpdated);
+    };
   }, []);
 
   const savedCount = savedHomes.length;

@@ -7,46 +7,60 @@ import RoleGuard from "@/components/auth/RoleGuard";
 import PropertyCard from "@/components/properties/PropertyCard";
 import PropertySkeletonGrid from "@/components/properties/PropertySkeletonGrid";
 import { getProperties } from "@/api/properties";
-import { HiHeart, HiBuildingOffice2, HiPlusCircle, HiTrash } from "react-icons/hi2";
+import { HiHeart, HiBuildingOffice2, HiTrash } from "react-icons/hi2";
 
 export default function DashboardSavedHomesPage() {
   const [savedProperties, setSavedProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadSavedHomes() {
-      try {
-        setLoading(true);
-        // Retrieve saved IDs from localStorage
-        const storedIds = JSON.parse(localStorage.getItem("nestly_saved_properties") || "[]");
+  const loadSavedHomes = async () => {
+    try {
+      setLoading(true);
+      const storedIds = JSON.parse(localStorage.getItem("nestly_saved_properties") || "[]");
 
-        const res = await getProperties({ limit: 50 });
-        if (res?.data && Array.isArray(res.data)) {
-          if (storedIds.length > 0) {
-            const filtered = res.data.filter((p) => storedIds.includes(p._id || p.id));
-            setSavedProperties(filtered.length > 0 ? filtered : res.data.slice(0, 3));
-          } else {
-            // Default sample saved homes if none toggled yet
-            setSavedProperties(res.data.slice(0, 3));
-          }
-        }
-      } catch (err) {
-        toast.error("Failed to load saved properties");
-      } finally {
+      if (storedIds.length === 0) {
+        setSavedProperties([]);
         setLoading(false);
+        return;
       }
+
+      const res = await getProperties({ limit: 100 });
+      if (res?.data && Array.isArray(res.data)) {
+        const filtered = res.data.filter((p) => storedIds.includes(p._id || p.id));
+        setSavedProperties(filtered);
+      } else {
+        setSavedProperties([]);
+      }
+    } catch (err) {
+      toast.error("Failed to load saved properties");
+      setSavedProperties([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadSavedHomes();
+
+    const handleSavedUpdated = () => loadSavedHomes();
+    window.addEventListener("nestly_saved_updated", handleSavedUpdated);
+    window.addEventListener("storage", handleSavedUpdated);
+
+    return () => {
+      window.removeEventListener("nestly_saved_updated", handleSavedUpdated);
+      window.removeEventListener("storage", handleSavedUpdated);
+    };
   }, []);
 
   const handleClearSaved = () => {
     localStorage.removeItem("nestly_saved_properties");
     setSavedProperties([]);
+    window.dispatchEvent(new Event("nestly_saved_updated"));
     toast.success("Cleared all saved homes");
   };
 
   return (
-    <RoleGuard allowedRoles={["user", "buyer", "seller", "agent"]}>
+    <RoleGuard allowedRoles={["user", "buyer", "seller", "agent", "admin"]}>
       <div className="space-y-8 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -61,7 +75,7 @@ export default function DashboardSavedHomesPage() {
               </span>
             </div>
             <p className="text-sm text-[var(--text-muted)]">
-              Your bookmarked properties, skyline penthouses, and coastal villas saved for quick reference.
+              Your bookmarked real estate listings saved to your local session collection.
             </p>
           </div>
 

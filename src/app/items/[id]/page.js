@@ -82,6 +82,34 @@ export default function PropertyDetailsPage({ params }) {
   const [tourDate, setTourDate] = useState("");
   const [tourMessage, setTourMessage] = useState("");
   const [submittingInquiry, setSubmittingInquiry] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (propertyId) {
+      try {
+        const stored = JSON.parse(localStorage.getItem("nestly_saved_properties") || "[]");
+        setIsSaved(stored.includes(propertyId));
+      } catch (e) {}
+    }
+  }, [propertyId]);
+
+  const toggleSave = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("nestly_saved_properties") || "[]");
+      let updated = [];
+      if (stored.includes(propertyId)) {
+        updated = stored.filter((id) => id !== propertyId);
+        setIsSaved(false);
+        toast.success("Removed from Saved Homes");
+      } else {
+        updated = [...stored, propertyId];
+        setIsSaved(true);
+        toast.success("Saved to your Favorites!");
+      }
+      localStorage.setItem("nestly_saved_properties", JSON.stringify(updated));
+      window.dispatchEvent(new Event("nestly_saved_updated"));
+    } catch (err) {}
+  };
 
   useEffect(() => {
     async function loadDetail() {
@@ -193,11 +221,15 @@ export default function PropertyDetailsPage({ params }) {
           </Link>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => toast.success("Saved to favorites!")}
-              className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-red-500 transition-colors"
-              title="Save Favorite"
+              onClick={toggleSave}
+              className={`p-2.5 rounded-xl border transition-colors ${
+                isSaved
+                  ? "bg-red-600 text-white border-red-600 shadow-md"
+                  : "bg-[var(--bg-card)] border-[var(--border-color)] text-[var(--text-muted)] hover:text-red-500"
+              }`}
+              title={isSaved ? "Remove from Favorites" : "Save to Favorites"}
             >
-              <HiHeart className="w-5 h-5" />
+              <HiHeart className={`w-5 h-5 ${isSaved ? "fill-white" : ""}`} />
             </button>
             <button
               onClick={() => {

@@ -41,6 +41,7 @@ export default function PropertyCard({ property }) {
         toast.success("Saved to your Favorites!");
       }
       localStorage.setItem("nestly_saved_properties", JSON.stringify(updated));
+      window.dispatchEvent(new Event("nestly_saved_updated"));
     } catch (err) {}
   };
 
