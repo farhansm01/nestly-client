@@ -1,16 +1,25 @@
 /**
  * Shared API fetch wrapper for nestly-client
- * Connects to the Nestly backend server (https://nestly-server-sigma.vercel.app in production)
+ * Connects to the Nestly backend server
  */
 
 const getBackendServerURL = () => {
-  const envUrl = process.env.NEXT_PUBLIC_SERVER_URL || process.env.NEXT_PUBLIC_API_URL;
-  if (envUrl && !envUrl.includes("localhost")) {
-    return envUrl;
+  // 1. Honor explicit environment variable if set (.env.local)
+  if (process.env.NEXT_PUBLIC_SERVER_URL) {
+    return process.env.NEXT_PUBLIC_SERVER_URL;
   }
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  // 2. Production fallback vs local development fallback
   if (typeof window !== "undefined" && !window.location?.hostname?.includes("localhost")) {
     return "https://nestly-server-sigma.vercel.app";
   }
+
   return "http://localhost:5000";
 };
 

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-export default function RoleGuard({ children, allowedRoles = ["buyer", "seller", "admin"] }) {
+export default function RoleGuard({ children, allowedRoles = ["user", "buyer", "seller", "agent", "admin"] }) {
   const { user, isPending } = useAuth();
   const router = useRouter();
 
@@ -13,8 +13,10 @@ export default function RoleGuard({ children, allowedRoles = ["buyer", "seller",
       if (!user) {
         router.push("/login");
       } else {
-        const userRole = user.role || "buyer";
-        if (!allowedRoles.includes(userRole)) {
+        const userRole = user.role || "user";
+        // Super admin has permission to access all dashboard tools
+        const isAuthorized = userRole === "admin" || allowedRoles.includes(userRole);
+        if (!isAuthorized) {
           router.push("/unauthorized");
         }
       }
@@ -34,8 +36,9 @@ export default function RoleGuard({ children, allowedRoles = ["buyer", "seller",
     return null;
   }
 
-  const userRole = user.role || "buyer";
-  if (!allowedRoles.includes(userRole)) {
+  const userRole = user.role || "user";
+  const isAuthorized = userRole === "admin" || allowedRoles.includes(userRole);
+  if (!isAuthorized) {
     return null;
   }
 

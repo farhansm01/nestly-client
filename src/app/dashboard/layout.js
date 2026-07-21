@@ -16,7 +16,6 @@ import {
   HiPlusCircle,
   HiUsers,
   HiChartBar,
-  HiCog6Tooth,
   HiSun,
   HiMoon,
   HiArrowRightOnRectangle,
@@ -47,8 +46,10 @@ export default function DashboardLayout({ children }) {
   if (userRole === "admin") {
     navItems = [
       { name: "Overview", href: "/dashboard/admin", icon: HiSquares2X2 },
-      { name: "Manage Listings", href: "/dashboard/admin/properties", icon: HiListBullet },
+      { name: "Manage Listings", href: "/dashboard/manage", icon: HiListBullet },
+      { name: "Add Property", href: "/dashboard/add", icon: HiPlusCircle },
       { name: "Manage Users", href: "/dashboard/admin/users", icon: HiUsers },
+      { name: "Explore All", href: "/items", icon: HiBuildingOffice2 },
     ];
   } else {
     // Standard User (Access to search, save, post, manage listings & AI)
