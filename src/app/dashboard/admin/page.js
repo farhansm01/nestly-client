@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import RoleGuard from "@/components/auth/RoleGuard";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getAdminStats, getAllAdminProperties, updatePropertyStatus } from "@/api/admin";
+import { getAdminStats, getAllAdminProperties, getAllUsers, updatePropertyStatus } from "@/api/admin";
 import {
   HiUsers,
   HiBuildingOffice2,
@@ -29,12 +29,9 @@ import {
   PieChart,
   Pie,
   Cell,
-  BarChart,
-  Bar,
-  Legend,
 } from "recharts";
 
-// Analytics Sample Datasets
+// Analytics Sample Datasets for Growth Metrics
 const MONTHLY_VOLUME_DATA = [
   { month: "Jan", volume: 45, transactions: 18 },
   { month: "Feb", volume: 62, transactions: 24 },
@@ -50,12 +47,6 @@ const CATEGORY_DISTRIBUTION = [
   { name: "Villas", value: 30, color: "#f59e0b" },
   { name: "Apartments", value: 20, color: "#6366f1" },
   { name: "Suburban", value: 15, color: "#10b981" },
-];
-
-const STATUS_BREAKDOWN = [
-  { status: "Active Approved", count: 84 },
-  { status: "Pending Review", count: 18 },
-  { status: "Sold / Closed", count: 42 },
 ];
 
 export default function AdminDashboardPage() {
@@ -85,20 +76,41 @@ export default function AdminDashboardPage() {
       setLoading(true);
       const headers = getHeaders();
 
-      const [statsRes, propsRes] = await Promise.all([
+      const [statsRes, allPropsRes, pendingPropsRes, usersRes] = await Promise.allSettled([
         getAdminStats(headers),
+        getAllAdminProperties({}, headers),
         getAllAdminProperties({ status: "Pending" }, headers),
+        getAllUsers({}, headers),
       ]);
 
-      if (statsRes?.data) {
-        setStats(statsRes.data);
-      }
+      const allListings =
+        allPropsRes.status === "fulfilled" && Array.isArray(allPropsRes.value?.data)
+          ? allPropsRes.value.data
+          : [];
 
-      if (propsRes?.data && Array.isArray(propsRes.data)) {
-        setPendingListings(propsRes.data);
-      } else {
-        setPendingListings([]);
-      }
+      const pendingList =
+        pendingPropsRes.status === "fulfilled" && Array.isArray(pendingPropsRes.value?.data)
+          ? pendingPropsRes.value.data
+          : allListings.filter((p) => p.status === "Pending");
+
+      const userList =
+        usersRes.status === "fulfilled" && Array.isArray(usersRes.value?.data)
+          ? usersRes.value.data
+          : [];
+
+      const totalProps = allListings.length;
+      const pendingCount = pendingList.length;
+      const approvedCount = allListings.filter((p) => p.status === "Approved" || !p.status).length;
+      const totalUserCount = userList.length || (statsRes.status === "fulfilled" ? statsRes.value?.data?.totalUsers || 0 : 0);
+
+      setStats({
+        totalUsers: totalUserCount,
+        totalProperties: totalProps,
+        pendingApprovals: pendingCount,
+        approvedProperties: approvedCount,
+      });
+
+      setPendingListings(pendingList);
     } catch (err) {
       toast.error("Failed to load admin overview metrics");
     } finally {
@@ -142,7 +154,7 @@ export default function AdminDashboardPage() {
               </span>
             </div>
             <p className="text-sm text-[var(--text-muted)]">
-              Real-time platform metrics, interactive analytics charts, and pending listing governance.
+              Real-time platform metrics from database, interactive analytics charts, and pending listing governance.
             </p>
           </div>
 
@@ -165,7 +177,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Dynamic Stat Cards Grid */}
+        {/* Dynamic DB Stat Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 sm:gap-6">
           <motion.div
             whileHover={{ y: -4 }}
@@ -178,7 +190,7 @@ export default function AdminDashboardPage() {
               <p className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                 Total Users
               </p>
-              <p className="text-2xl font-black text-[var(--text-main)] mt-0.5">{stats.totalUsers || 8}</p>
+              <p className="text-2xl font-black text-[var(--text-main)] mt-0.5">{stats.totalUsers}</p>
             </div>
           </motion.div>
 
@@ -193,7 +205,7 @@ export default function AdminDashboardPage() {
               <p className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                 Total Properties
               </p>
-              <p className="text-2xl font-black text-[var(--text-main)] mt-0.5">{stats.totalProperties || 12}</p>
+              <p className="text-2xl font-black text-[var(--text-main)] mt-0.5">{stats.totalProperties}</p>
             </div>
           </motion.div>
 
@@ -208,7 +220,7 @@ export default function AdminDashboardPage() {
               <p className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                 Pending Approvals
               </p>
-              <p className="text-2xl font-black text-amber-500 mt-0.5">{stats.pendingApprovals || 2}</p>
+              <p className="text-2xl font-black text-amber-500 mt-0.5">{stats.pendingApprovals}</p>
             </div>
           </motion.div>
 
@@ -223,7 +235,7 @@ export default function AdminDashboardPage() {
               <p className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                 Approved Active
               </p>
-              <p className="text-2xl font-black text-emerald-500 mt-0.5">{stats.approvedProperties || 10}</p>
+              <p className="text-2xl font-black text-emerald-500 mt-0.5">{stats.approvedProperties}</p>
             </div>
           </motion.div>
         </div>

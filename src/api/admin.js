@@ -1,7 +1,7 @@
 import { fetcher } from "@/lib/fetcher";
 
 /**
- * Fetch platform stats for admin dashboard
+ * Fetch platform stats for admin dashboard directly from server DB
  */
 export async function getAdminStats(headers = {}) {
   try {
@@ -11,17 +11,41 @@ export async function getAdminStats(headers = {}) {
       },
     });
   } catch (err) {
-    console.warn("getAdminStats fallback activated:", err.message);
-    return {
-      success: true,
-      data: {
-        totalListings: 12,
-        pendingApprovals: 2,
-        totalUsers: 8,
-        activeSellers: 3,
-        systemHealth: "99.8%",
-      },
-    };
+    console.warn("getAdminStats endpoint fallback, computing live DB metrics:", err.message);
+    try {
+      const [propsRes, usersRes] = await Promise.all([
+        fetcher("/api/properties", { headers }).catch(() => ({ data: [] })),
+        fetcher("/api/admin/users", { headers }).catch(() => ({ data: [] })),
+      ]);
+
+      const properties = Array.isArray(propsRes?.data) ? propsRes.data : [];
+      const users = Array.isArray(usersRes?.data) ? usersRes.data : [];
+
+      const totalProperties = properties.length;
+      const pendingApprovals = properties.filter((p) => p.status === "Pending").length;
+      const approvedProperties = properties.filter((p) => p.status === "Approved" || !p.status).length;
+      const totalUsers = users.length;
+
+      return {
+        success: true,
+        data: {
+          totalProperties,
+          pendingApprovals,
+          approvedProperties,
+          totalUsers,
+        },
+      };
+    } catch (calcErr) {
+      return {
+        success: true,
+        data: {
+          totalProperties: 0,
+          pendingApprovals: 0,
+          approvedProperties: 0,
+          totalUsers: 0,
+        },
+      };
+    }
   }
 }
 
@@ -104,24 +128,7 @@ export async function getAllUsers(params = {}, headers = {}) {
     console.warn("getAllUsers fallback activated:", err.message);
     return {
       success: true,
-      data: [
-        {
-          _id: "user-1",
-          name: "Farhan Sadiq",
-          email: "farhan@example.com",
-          role: "admin",
-          status: "active",
-          createdAt: new Date().toISOString(),
-        },
-        {
-          _id: "user-2",
-          name: "Demo Seller",
-          email: "seller@nestly.ai",
-          role: "seller",
-          status: "active",
-          createdAt: new Date().toISOString(),
-        },
-      ],
+      data: [],
     };
   }
 }
