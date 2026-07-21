@@ -40,45 +40,57 @@ export default function UnifiedUserDashboardPage() {
     }
   }, [user, isPending, router]);
 
-  useEffect(() => {
-    async function loadDashboardData() {
-      if (!user) return;
-      try {
-        setLoading(true);
-        // Load user's posted listings
-        const headers = {};
-        if (user?.id || user?._id) {
-          headers["x-user-id"] = user.id || user._id;
-          headers["x-user-name"] = user.name || "User";
-          headers["x-user-email"] = user.email || "";
-          headers["x-user-role"] = user.role || "user";
-        }
-        const myRes = await getMyProperties(headers);
-        if (myRes?.data && Array.isArray(myRes.data)) {
-          setMyListings(myRes.data);
-        } else {
-          setMyListings([]);
-        }
+  const loadDashboardData = async () => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      // Load user's posted listings
+      const headers = {};
+      if (user?.id || user?._id) {
+        headers["x-user-id"] = user.id || user._id;
+        headers["x-user-name"] = user.name || "User";
+        headers["x-user-email"] = user.email || "";
+        headers["x-user-role"] = user.role || "user";
+      }
+      const myRes = await getMyProperties(headers);
+      if (myRes?.data && Array.isArray(myRes.data)) {
+        setMyListings(myRes.data);
+      } else {
+        setMyListings([]);
+      }
 
-        // Load saved favorites
-        const storedIds = JSON.parse(localStorage.getItem("nestly_saved_properties") || "[]");
+      // Load saved favorites dynamically from localStorage
+      const storedIds = JSON.parse(localStorage.getItem("nestly_saved_properties") || "[]");
+      if (storedIds.length === 0) {
+        setSavedHomes([]);
+      } else {
         const allRes = await getProperties({ limit: 50 });
         if (allRes?.data && Array.isArray(allRes.data)) {
-          if (storedIds.length > 0) {
-            const filtered = allRes.data.filter((p) => storedIds.includes(p._id || p.id));
-            setSavedHomes(filtered.length > 0 ? filtered : allRes.data.slice(0, 3));
-          } else {
-            setSavedHomes(allRes.data.slice(0, 3));
-          }
+          const filtered = allRes.data.filter((p) => storedIds.includes(p._id || p.id));
+          setSavedHomes(filtered);
+        } else {
+          setSavedHomes([]);
         }
-      } catch (err) {
-        setMyListings([]);
-        setSavedHomes([]);
-      } finally {
-        setLoading(false);
       }
+    } catch (err) {
+      setMyListings([]);
+      setSavedHomes([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadDashboardData();
+
+    const handleSavedUpdated = () => loadDashboardData();
+    window.addEventListener("nestly_saved_updated", handleSavedUpdated);
+    window.addEventListener("storage", handleSavedUpdated);
+
+    return () => {
+      window.removeEventListener("nestly_saved_updated", handleSavedUpdated);
+      window.removeEventListener("storage", handleSavedUpdated);
+    };
   }, [user]);
 
   if (isPending || !user) {
