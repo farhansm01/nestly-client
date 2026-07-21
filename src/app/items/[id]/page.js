@@ -2,8 +2,10 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { getPropertyById, getProperties } from "@/api/properties";
 import { submitInquiry } from "@/actions/inquiries";
 import PropertyCard from "@/components/properties/PropertyCard";
@@ -22,6 +24,7 @@ import {
   HiUser,
   HiPhone,
   HiEnvelope,
+  HiLockClosed,
 } from "react-icons/hi2";
 import { IoBedOutline, IoWaterOutline, IoSquareOutline } from "react-icons/io5";
 
@@ -57,11 +60,9 @@ const SAMPLE_DETAIL_PROPERTY = {
     "Panoramic Ocean View",
     "Fireplace",
   ],
-  seller: {
-    name: "Farhan Sadiq",
-    email: "farhan@nestly.ai",
-    phone: "+1 (555) 234-5678",
-  },
+  sellerName: "Farhan Sadiq",
+  sellerEmail: "farhan@nestly.ai",
+  sellerPhone: "+1 (555) 234-5678",
   rating: 4.9,
   views: 482,
 };
@@ -69,6 +70,8 @@ const SAMPLE_DETAIL_PROPERTY = {
 export default function PropertyDetailsPage({ params }) {
   const unwrappedParams = use(params);
   const propertyId = unwrappedParams?.id;
+  const router = useRouter();
+  const { user } = useAuth();
 
   const [property, setProperty] = useState(null);
   const [relatedProperties, setRelatedProperties] = useState([]);
@@ -83,6 +86,13 @@ export default function PropertyDetailsPage({ params }) {
   const [tourMessage, setTourMessage] = useState("");
   const [submittingInquiry, setSubmittingInquiry] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      if (user.name) setTourName(user.name);
+      if (user.email) setTourEmail(user.email);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (propertyId) {
@@ -142,8 +152,32 @@ export default function PropertyDetailsPage({ params }) {
     if (propertyId) loadDetail();
   }, [propertyId]);
 
+  // Check if current logged-in user is the owner/seller of this property
+  const isOwner = Boolean(
+    user &&
+      property &&
+      ((user.id && (user.id === property.userId || user.id === property.user_id || user.id === property.sellerId)) ||
+        (user._id && (user._id === property.userId || user._id === property.user_id || user._id === property.sellerId)) ||
+        (user.email &&
+          (user.email === property.userEmail ||
+            user.email === property.sellerEmail ||
+            user.email === property.seller?.email)))
+  );
+
   const handleInquirySubmit = async (e) => {
     e.preventDefault();
+
+    if (!user) {
+      toast.error("Please sign in to request a property tour");
+      router.push("/login");
+      return;
+    }
+
+    if (isOwner) {
+      toast.error("You cannot request a tour for your own property!");
+      return;
+    }
+
     if (!tourName || !tourEmail || !tourDate) {
       toast.error("Please fill in your name, email, and preferred tour date");
       return;
@@ -162,16 +196,10 @@ export default function PropertyDetailsPage({ params }) {
       });
 
       toast.success("Tour request sent to the listing agent!");
-      setTourName("");
-      setTourEmail("");
-      setTourPhone("");
       setTourDate("");
       setTourMessage("");
     } catch (err) {
       toast.success("Tour request submitted successfully!");
-      setTourName("");
-      setTourEmail("");
-      setTourPhone("");
       setTourDate("");
       setTourMessage("");
     } finally {
@@ -200,13 +228,24 @@ export default function PropertyDetailsPage({ params }) {
   const currentImage = galleryImages[activeImageIndex] || galleryImages[0];
 
   const displayPrice =
-    typeof property.price === "number" && !isNaN(property.price)
+    property.formattedPrice ||
+    (typeof property.price === "number"
       ? `$${property.price.toLocaleString("en-US")}`
-      : property.formattedPrice && !property.formattedPrice.startsWith(",")
-      ? property.formattedPrice
       : property.price
       ? `$${Number(property.price).toLocaleString("en-US")}`
-      : "$1,250,000";
+      : "$1,250,000");
+
+  const agentName =
+    property.sellerName ||
+    property.seller?.name ||
+    property.userEmail?.split("@")[0] ||
+    "Nestly Verified Agent";
+
+  const agentEmail =
+    property.sellerEmail ||
+    property.seller?.email ||
+    property.userEmail ||
+    "contact@nestly.ai";
 
   return (
     <div className="space-y-12 py-10 bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300 min-h-screen">
@@ -371,28 +410,46 @@ export default function PropertyDetailsPage({ params }) {
             </div>
           </div>
 
-          {/* Right Column: Tour Request Inquiry Form */}
+          {/* Right Column: Dynamic Listing Agent & Tour Request Inquiry Form */}
           <div className="space-y-6">
             <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-6 sm:p-8 rounded-3xl shadow-xl space-y-6">
               <div className="space-y-1 border-b border-[var(--border-color)] pb-4">
                 <h3 className="text-xl font-bold text-[var(--text-main)]">Request Private Tour</h3>
                 <p className="text-xs text-[var(--text-muted)]">
-                  Schedule a virtual or in-person walk-through with our agent.
+                  Schedule a virtual or in-person walk-through with the listing agent.
                 </p>
               </div>
 
-              {/* Agent Quick Info */}
-              <div className="p-3.5 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center text-white font-bold">
-                  <HiUser className="w-5 h-5" />
+              {/* Dynamic Agent Card */}
+              <div className="p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-teal-600 flex items-center justify-center text-white font-black text-lg shadow-sm shrink-0">
+                    {agentName[0]?.toUpperCase() || "A"}
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-sm font-bold text-[var(--text-main)] truncate">
+                      {agentName}
+                    </p>
+                    <p className="text-[10px] text-teal-500 font-extrabold uppercase tracking-wider">
+                      Listing Owner / Agent
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-[var(--text-main)]">
-                    {property.seller?.name || "Nestly Verified Agent"}
+                {agentEmail && (
+                  <p className="text-xs text-[var(--text-muted)] flex items-center gap-1.5 pt-1 border-t border-[var(--border-color)]">
+                    <HiEnvelope className="w-3.5 h-3.5 text-teal-500 shrink-0" />
+                    <span className="truncate">{agentEmail}</span>
                   </p>
-                  <p className="text-[10px] text-teal-500 font-semibold uppercase">Listing Agent</p>
-                </div>
+                )}
               </div>
+
+              {/* Owner Notice Badge if Owner is Viewing */}
+              {isOwner && (
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs font-semibold flex items-center gap-2">
+                  <HiLockClosed className="w-4 h-4 shrink-0" />
+                  <span>This is your property listing. Tour request is disabled.</span>
+                </div>
+              )}
 
               {/* Form */}
               <form onSubmit={handleInquirySubmit} className="space-y-4">
@@ -403,10 +460,11 @@ export default function PropertyDetailsPage({ params }) {
                   <input
                     type="text"
                     required
+                    disabled={isOwner}
                     placeholder="John Doe"
                     value={tourName}
                     onChange={(e) => setTourName(e.target.value)}
-                    className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-teal-500"
+                    className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-teal-500 disabled:opacity-50"
                   />
                 </div>
 
@@ -417,10 +475,11 @@ export default function PropertyDetailsPage({ params }) {
                   <input
                     type="email"
                     required
+                    disabled={isOwner}
                     placeholder="you@example.com"
                     value={tourEmail}
                     onChange={(e) => setTourEmail(e.target.value)}
-                    className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-teal-500"
+                    className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-teal-500 disabled:opacity-50"
                   />
                 </div>
 
@@ -431,9 +490,10 @@ export default function PropertyDetailsPage({ params }) {
                   <input
                     type="date"
                     required
+                    disabled={isOwner}
                     value={tourDate}
                     onChange={(e) => setTourDate(e.target.value)}
-                    className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-teal-500"
+                    className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-teal-500 disabled:opacity-50"
                   />
                 </div>
 
@@ -443,28 +503,52 @@ export default function PropertyDetailsPage({ params }) {
                   </label>
                   <textarea
                     rows={3}
+                    disabled={isOwner}
                     placeholder="I am interested in scheduling a tour..."
                     value={tourMessage}
                     onChange={(e) => setTourMessage(e.target.value)}
-                    className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-teal-500"
+                    className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-teal-500 disabled:opacity-50"
                   />
                 </div>
 
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  type="submit"
-                  disabled={submittingInquiry}
-                  className="w-full btn bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl py-3 border-none shadow-md shadow-teal-900/30 flex items-center justify-center gap-2 text-xs"
-                >
-                  {submittingInquiry ? (
-                    <span className="loading loading-spinner loading-xs" />
-                  ) : (
-                    <>
-                      <HiPaperAirplane className="w-4 h-4" />
-                      <span>Submit Tour Request</span>
-                    </>
-                  )}
-                </motion.button>
+                {!user ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toast.error("Please sign in to request a property tour");
+                      router.push("/login");
+                    }}
+                    className="w-full btn bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl py-3 border-none shadow-md flex items-center justify-center gap-2 text-xs"
+                  >
+                    <HiLockClosed className="w-4 h-4" />
+                    <span>Sign In to Request Tour</span>
+                  </button>
+                ) : isOwner ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full btn bg-slate-800 text-slate-400 font-bold rounded-xl py-3 border border-slate-700 cursor-not-allowed flex items-center justify-center gap-2 text-xs"
+                  >
+                    <HiLockClosed className="w-4 h-4" />
+                    <span>Owner Mode — Cannot Request Tour</span>
+                  </button>
+                ) : (
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    type="submit"
+                    disabled={submittingInquiry}
+                    className="w-full btn bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl py-3 border-none shadow-md shadow-teal-900/30 flex items-center justify-center gap-2 text-xs"
+                  >
+                    {submittingInquiry ? (
+                      <span className="loading loading-spinner loading-xs" />
+                    ) : (
+                      <>
+                        <HiPaperAirplane className="w-4 h-4" />
+                        <span>Submit Tour Request</span>
+                      </>
+                    )}
+                  </motion.button>
+                )}
               </form>
             </div>
           </div>
