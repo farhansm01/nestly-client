@@ -16,7 +16,7 @@ const FEATURED_PROPERTIES = [
     baths: 3,
     sqft: "2,850 sqft",
     image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
-    aiMatch: "98% AI Match",
+    badge: "Featured",
     rating: 4.9,
   },
   {
@@ -29,7 +29,7 @@ const FEATURED_PROPERTIES = [
     baths: 4.5,
     sqft: "4,500 sqft",
     image: "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80",
-    aiMatch: "96% AI Match",
+    badge: "Featured",
     rating: 5.0,
   },
   {
@@ -42,7 +42,7 @@ const FEATURED_PROPERTIES = [
     baths: 2,
     sqft: "1,420 sqft",
     image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-    aiMatch: "94% AI Match",
+    badge: "Featured",
     rating: 4.8,
   },
   {
@@ -55,7 +55,7 @@ const FEATURED_PROPERTIES = [
     baths: 4,
     sqft: "3,600 sqft",
     image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
-    aiMatch: "97% AI Match",
+    badge: "Featured",
     rating: 4.9,
   },
 ];
@@ -129,8 +129,8 @@ export default function FeaturedProperties() {
                   alt={property.title}
                   className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-slate-900/90 text-teal-300 border border-teal-500/30 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 backdrop-blur-md">
-                  <HiSparkles className="w-3 h-3 text-amber-400" /> {property.aiMatch}
+                <div className="absolute top-3 left-3 bg-slate-900/90 text-amber-300 border border-amber-500/30 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 backdrop-blur-md">
+                  <HiSparkles className="w-3 h-3 text-amber-400" /> {property.badge}
                 </div>
                 <div className="absolute top-3 right-3 bg-slate-900/80 text-amber-400 text-xs font-bold px-2 py-1 rounded-lg flex items-center gap-1 backdrop-blur-md">
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> {property.rating}

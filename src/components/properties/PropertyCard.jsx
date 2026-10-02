@@ -60,7 +60,12 @@ export default function PropertyCard({ property }) {
       ? `$${Number(property.price).toLocaleString("en-US")}`
       : "$1,250,000";
 
-  const rating = property.rating || 4.9;
+  const ratingVal =
+    property.averageRating !== undefined && property.averageRating > 0
+      ? property.averageRating
+      : property.rating !== undefined && property.rating > 0
+      ? property.rating
+      : null;
 
   return (
     <motion.div
@@ -100,7 +105,10 @@ export default function PropertyCard({ property }) {
         {/* Bottom Rating Pill */}
         <div className="absolute bottom-3.5 left-3.5 flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md text-amber-400">
           <HiStar className="w-4 h-4 fill-amber-400 text-amber-400" />
-          <span>{rating}</span>
+          <span>{ratingVal ? Number(ratingVal).toFixed(1) : "4.8"}</span>
+          {property.reviewCount > 0 && (
+            <span className="text-[10px] text-slate-300 font-medium">({property.reviewCount})</span>
+          )}
         </div>
       </div>
 

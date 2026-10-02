@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -10,6 +10,7 @@ import { getPropertyById, getProperties } from "@/api/properties";
 import { submitInquiry } from "@/actions/inquiries";
 import PropertyCard from "@/components/properties/PropertyCard";
 import PropertySkeletonGrid from "@/components/properties/PropertySkeletonGrid";
+import PropertyReviews from "@/components/properties/PropertyReviews";
 import {
   HiMapPin,
   HiStar,
@@ -207,6 +208,23 @@ export default function PropertyDetailsPage({ params }) {
     }
   };
 
+  const handleStatsUpdated = useCallback((stats) => {
+    if (stats?.averageRating !== undefined) {
+      setProperty((prev) => {
+        if (!prev) return prev;
+        if (prev.averageRating === stats.averageRating && prev.reviewCount === stats.totalCount) {
+          return prev;
+        }
+        return {
+          ...prev,
+          averageRating: stats.averageRating,
+          rating: stats.averageRating,
+          reviewCount: stats.totalCount,
+        };
+      });
+    }
+  }, []);
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
@@ -290,9 +308,12 @@ export default function PropertyDetailsPage({ params }) {
               <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-teal-500/20 text-teal-500 border border-teal-500/30">
                 {property.type || "Luxury Estate"}
               </span>
-              <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-500 flex items-center gap-1">
+              <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-500 flex items-center gap-1.5">
                 <HiStar className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span>{property.rating || 4.9}</span>
+                <span>{property.averageRating || property.rating || "0.0"}</span>
+                {property.reviewCount !== undefined && (
+                  <span className="text-[10px] text-amber-300 font-medium">({property.reviewCount})</span>
+                )}
               </span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--text-main)]">
@@ -552,6 +573,15 @@ export default function PropertyDetailsPage({ params }) {
               </form>
             </div>
           </div>
+        </div>
+
+        {/* Customer Reviews & Ratings Section */}
+        <div className="pt-8 border-t border-[var(--border-color)]">
+          <PropertyReviews
+            propertyId={property._id || property.id}
+            sellerId={property.sellerId}
+            onStatsUpdated={handleStatsUpdated}
+          />
         </div>
 
         {/* Related Properties Section */}

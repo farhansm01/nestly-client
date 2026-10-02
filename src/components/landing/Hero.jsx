@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiSparkles, HiMapPin, HiBuildingOffice2, HiMagnifyingGlass, HiStar } from "react-icons/hi2";
 import { ChevronDown } from "@gravity-ui/icons";
+import { getProperties } from "@/api/properties";
 
 const heroSlides = [
   {
@@ -46,6 +47,24 @@ export default function Hero() {
   const [searchLocation, setSearchLocation] = useState("");
   const [propertyType, setPropertyType] = useState("all");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [activeListingsCount, setActiveListingsCount] = useState(null);
+
+  // Fetch dynamic active listings count from backend DB
+  useEffect(() => {
+    async function fetchListingsCount() {
+      try {
+        const res = await getProperties({ limit: 1 });
+        if (res?.pagination?.total !== undefined) {
+          setActiveListingsCount(res.pagination.total);
+        } else if (res?.data && Array.isArray(res.data)) {
+          setActiveListingsCount(res.data.length);
+        }
+      } catch (err) {
+        console.error("Failed to fetch active listings count:", err);
+      }
+    }
+    fetchListingsCount();
+  }, []);
 
   // Auto-advance image slider every 4 seconds
   useEffect(() => {
@@ -304,7 +323,11 @@ export default function Hero() {
                 <HiBuildingOffice2 className="w-5 h-5 text-teal-500" />
               </div>
               <div>
-                <p className="text-[var(--text-main)] font-bold text-sm">1,200+</p>
+                <p className="text-[var(--text-main)] font-bold text-sm">
+                  {activeListingsCount !== null
+                    ? `${activeListingsCount.toLocaleString()}+`
+                    : "1,200+"}
+                </p>
                 <p className="text-[var(--text-muted)] text-xs">Active Listings</p>
               </div>
             </motion.div>
@@ -315,11 +338,11 @@ export default function Hero() {
               className="absolute -bottom-6 -right-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3"
             >
               <div className="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center">
-                <HiStar className="w-5 h-5 text-amber-500" />
+                <HiSparkles className="w-5 h-5 text-amber-500" />
               </div>
               <div>
-                <p className="text-[var(--text-main)] font-bold text-sm">98% Match</p>
-                <p className="text-[var(--text-muted)] text-xs">AI Precision Score</p>
+                <p className="text-[var(--text-main)] font-bold text-sm">AI-Powered</p>
+                <p className="text-[var(--text-muted)] text-xs">Smart Property Recommendations</p>
               </div>
             </motion.div>
           </motion.div>
