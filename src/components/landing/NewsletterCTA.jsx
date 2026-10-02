@@ -3,19 +3,36 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
-import { HiSparkles } from "react-icons/hi2";
+import { HiSparkles, HiCheckCircle } from "react-icons/hi2";
+import { subscribeToNewsletter } from "@/actions/newsletter";
 
 export default function NewsletterCTA() {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [subscribed, setSubscribed] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) {
+    if (!email || !email.includes("@")) {
       toast.error("Please enter a valid email address");
       return;
     }
-    toast.success("Subscribed! You will receive AI market alerts.");
-    setEmail("");
+
+    try {
+      setLoading(true);
+      const res = await subscribeToNewsletter(email);
+      if (res?.success) {
+        toast.success(res.message || "Subscribed to AI market alerts!");
+        setSubscribed(true);
+        setEmail("");
+      } else {
+        toast.error(res?.message || "Failed to subscribe. Please try again.");
+      }
+    } catch (err) {
+      toast.error(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,22 +56,43 @@ export default function NewsletterCTA() {
             Subscribe to receive personalized price drop notifications, high-value investment alerts, and new listing matches.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-lg mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email address..."
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full sm:flex-1 bg-[var(--bg-card-subtle)] border border-[var(--border-color)] focus:border-teal-500 text-[var(--text-main)] text-sm rounded-xl px-4 py-3.5 focus:outline-none placeholder:text-[var(--text-muted)]"
-            />
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              type="submit"
-              className="w-full sm:w-auto btn bg-teal-600 hover:bg-teal-500 text-white font-bold px-6 py-3.5 rounded-xl border-none shadow-md shadow-teal-900/30"
+          {subscribed ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-8 p-4 bg-teal-500/10 border border-teal-500/30 rounded-2xl max-w-md mx-auto flex items-center justify-center gap-3 text-teal-400 font-semibold text-sm"
             >
-              Subscribe Now
-            </motion.button>
-          </form>
+              <HiCheckCircle className="w-6 h-6 text-teal-400 shrink-0" />
+              <span>You're subscribed! We'll notify you on new listing alerts.</span>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-lg mx-auto">
+              <input
+                type="email"
+                required
+                disabled={loading}
+                placeholder="Enter your email address..."
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full sm:flex-1 bg-[var(--bg-card-subtle)] border border-[var(--border-color)] focus:border-teal-500 text-[var(--text-main)] text-sm rounded-xl px-4 py-3.5 focus:outline-none placeholder:text-[var(--text-muted)] disabled:opacity-50"
+              />
+              <motion.button
+                whileTap={{ scale: 0.96 }}
+                type="submit"
+                disabled={loading}
+                className="w-full sm:w-auto btn bg-teal-600 hover:bg-teal-500 text-white font-bold px-6 py-3.5 rounded-xl border-none shadow-md shadow-teal-900/30 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Subscribing...</span>
+                  </>
+                ) : (
+                  <span>Subscribe Now</span>
+                )}
+              </motion.button>
+            </form>
+          )}
         </motion.div>
       </div>
     </section>
