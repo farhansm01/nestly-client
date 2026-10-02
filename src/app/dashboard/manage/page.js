@@ -250,6 +250,7 @@ export default function DashboardManageListingsPage() {
                     const st = (property.status || "Active").toLowerCase();
 
                     let statusBadgeClass = "bg-emerald-500/15 text-emerald-500 border-emerald-500/30";
+                    if (st === "sold") statusBadgeClass = "bg-red-500/15 text-red-500 border-red-500/30";
                     if (st === "pending") statusBadgeClass = "bg-amber-500/15 text-amber-500 border-amber-500/30";
                     if (st === "rejected") statusBadgeClass = "bg-red-500/15 text-red-500 border-red-500/30";
 
@@ -289,9 +290,16 @@ export default function DashboardManageListingsPage() {
                         </td>
 
                         <td className="py-4 px-4">
-                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border capitalize ${statusBadgeClass}`}>
-                            {property.status || "Active"}
-                          </span>
+                          <select
+                            value={property.status || "Approved"}
+                            onChange={(e) => handleStatusChange(propId, e.target.value)}
+                            className={`text-[11px] font-bold px-2.5 py-1 rounded-full border cursor-pointer focus:outline-none bg-[var(--bg-card-subtle)] ${statusBadgeClass}`}
+                          >
+                            <option value="Approved">Available</option>
+                            <option value="Sold">Sold Out 🔴</option>
+                            {isAdmin && <option value="Pending">Pending</option>}
+                            {isAdmin && <option value="Rejected">Rejected</option>}
+                          </select>
                         </td>
 
                         <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
@@ -540,22 +548,21 @@ export default function DashboardManageListingsPage() {
                     />
                   </div>
 
-                  {isAdmin && (
-                    <div>
-                      <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
-                        Approval Status
-                      </label>
-                      <select
-                        value={editingProperty.status || "Pending"}
-                        onChange={(e) => setEditingProperty({ ...editingProperty, status: e.target.value })}
-                        className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
-                      >
-                        <option value="Pending">Pending Review</option>
-                        <option value="Approved">Approved / Active</option>
-                        <option value="Rejected">Rejected</option>
-                      </select>
-                    </div>
-                  )}
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase mb-1">
+                      Listing Status
+                    </label>
+                    <select
+                      value={editingProperty.status || "Approved"}
+                      onChange={(e) => setEditingProperty({ ...editingProperty, status: e.target.value })}
+                      className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500"
+                    >
+                      <option value="Approved">Available / Active</option>
+                      <option value="Sold">Sold Out 🔴</option>
+                      {isAdmin && <option value="Pending">Pending Review</option>}
+                      {isAdmin && <option value="Rejected">Rejected</option>}
+                    </select>
+                  </div>
 
                   <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border-color)]">
                     <button
