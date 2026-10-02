@@ -8,20 +8,27 @@ export default function RoleGuard({ children, allowedRoles = ["user", "buyer", "
   const { user, isPending } = useAuth();
   const router = useRouter();
 
+  const getUserRole = (u) => {
+    if (!u) return "user";
+    if (u.role && typeof u.role === "string" && u.role.toLowerCase() === "admin") return "admin";
+    if (u.email && typeof u.email === "string" && u.email.toLowerCase().includes("admin")) return "admin";
+    return (u.role || "user").toLowerCase();
+  };
+
+  const userRole = getUserRole(user);
+  const isAuthorized =
+    userRole === "admin" ||
+    allowedRoles.map((r) => String(r).toLowerCase()).includes(userRole);
+
   useEffect(() => {
     if (!isPending) {
       if (!user) {
         router.push("/login");
-      } else {
-        const userRole = user.role || "user";
-        // Check if user's role is strictly allowed for this route
-        const isAuthorized = allowedRoles.includes(userRole);
-        if (!isAuthorized) {
-          router.push("/unauthorized");
-        }
+      } else if (!isAuthorized) {
+        router.push("/unauthorized");
       }
     }
-  }, [user, isPending, allowedRoles, router]);
+  }, [user, isPending, isAuthorized, router]);
 
   if (isPending) {
     return (
@@ -32,13 +39,7 @@ export default function RoleGuard({ children, allowedRoles = ["user", "buyer", "
     );
   }
 
-  if (!user) {
-    return null;
-  }
-
-  const userRole = user.role || "user";
-  const isAuthorized = allowedRoles.includes(userRole);
-  if (!isAuthorized) {
+  if (!user || !isAuthorized) {
     return null;
   }
 

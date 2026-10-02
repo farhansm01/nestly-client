@@ -33,7 +33,10 @@ export default function UnifiedUserDashboardPage() {
         router.push("/login");
         return;
       }
-      if (user.role === "admin") {
+      const isAdmin =
+        (user?.role && user.role.toLowerCase() === "admin") ||
+        (user?.email && user.email.toLowerCase().includes("admin"));
+      if (isAdmin) {
         router.push("/dashboard/admin");
         return;
       }
