@@ -8,3 +8,9 @@ export async function getPropertyReviews(propertyId) {
   if (!propertyId) return null;
   return fetcher(`/api/reviews/property/${propertyId}`);
 }
+
+export async function getRecentReviews(limit = 6) {
+  return fetcher("/api/reviews/recent", {
+    query: { limit },
+  });
+}
