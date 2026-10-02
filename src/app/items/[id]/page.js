@@ -265,6 +265,8 @@ export default function PropertyDetailsPage({ params }) {
     property.userEmail ||
     "contact@nestly.ai";
 
+  const isSold = property?.status?.toLowerCase() === "sold";
+
   return (
     <div className="space-y-12 py-10 bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -305,9 +307,15 @@ export default function PropertyDetailsPage({ params }) {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--border-color)] pb-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-teal-500/20 text-teal-500 border border-teal-500/30">
-                {property.type || "Luxury Estate"}
-              </span>
+              {isSold ? (
+                <span className="text-xs font-black uppercase tracking-wider px-3.5 py-1 rounded-full bg-red-600 text-white shadow-md border border-red-400">
+                  🔴 SOLD OUT
+                </span>
+              ) : (
+                <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-teal-500/20 text-teal-500 border border-teal-500/30">
+                  {property.type || "Luxury Estate"}
+                </span>
+              )}
               <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-500 flex items-center gap-1.5">
                 <HiStar className="w-4 h-4 fill-amber-400 text-amber-400" />
                 <span>
@@ -468,13 +476,18 @@ export default function PropertyDetailsPage({ params }) {
                 )}
               </div>
 
-              {/* Owner Notice Badge if Owner is Viewing */}
-              {isOwner && (
+              {/* Owner or Sold Notice Badges */}
+              {isSold ? (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2">
+                  <HiLockClosed className="w-4 h-4 shrink-0" />
+                  <span>This property is Sold Out. Tour requests are disabled.</span>
+                </div>
+              ) : isOwner ? (
                 <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs font-semibold flex items-center gap-2">
                   <HiLockClosed className="w-4 h-4 shrink-0" />
                   <span>This is your property listing. Tour request is disabled.</span>
                 </div>
-              )}
+              ) : null}
 
               {/* Form */}
               <form onSubmit={handleInquirySubmit} className="space-y-4">
@@ -485,7 +498,7 @@ export default function PropertyDetailsPage({ params }) {
                   <input
                     type="text"
                     required
-                    disabled={isOwner}
+                    disabled={isOwner || isSold}
                     placeholder="John Doe"
                     value={tourName}
                     onChange={(e) => setTourName(e.target.value)}
@@ -500,7 +513,7 @@ export default function PropertyDetailsPage({ params }) {
                   <input
                     type="email"
                     required
-                    disabled={isOwner}
+                    disabled={isOwner || isSold}
                     placeholder="you@example.com"
                     value={tourEmail}
                     onChange={(e) => setTourEmail(e.target.value)}
@@ -515,7 +528,7 @@ export default function PropertyDetailsPage({ params }) {
                   <input
                     type="date"
                     required
-                    disabled={isOwner}
+                    disabled={isOwner || isSold}
                     value={tourDate}
                     onChange={(e) => setTourDate(e.target.value)}
                     className="w-full bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--text-main)] text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-teal-500 disabled:opacity-50"
@@ -528,7 +541,7 @@ export default function PropertyDetailsPage({ params }) {
                   </label>
                   <textarea
                     rows={3}
-                    disabled={isOwner}
+                    disabled={isOwner || isSold}
                     placeholder="I am interested in scheduling a tour..."
                     value={tourMessage}
                     onChange={(e) => setTourMessage(e.target.value)}
@@ -536,7 +549,16 @@ export default function PropertyDetailsPage({ params }) {
                   />
                 </div>
 
-                {!user ? (
+                {isSold ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full btn bg-slate-800 text-slate-400 font-bold rounded-xl py-3 border border-slate-700 cursor-not-allowed flex items-center justify-center gap-2 text-xs"
+                  >
+                    <HiLockClosed className="w-4 h-4" />
+                    <span>Property Sold Out — Tour Disabled</span>
+                  </button>
+                ) : !user ? (
                   <button
                     type="button"
                     onClick={() => {
@@ -584,6 +606,7 @@ export default function PropertyDetailsPage({ params }) {
           <PropertyReviews
             propertyId={property._id || property.id}
             sellerId={property.sellerId}
+            isSold={isSold}
             onStatsUpdated={handleStatsUpdated}
           />
         </div>

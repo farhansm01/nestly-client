@@ -18,7 +18,7 @@ import {
   HiCheckCircle,
 } from "react-icons/hi2";
 
-export default function PropertyReviews({ propertyId, sellerId, onStatsUpdated }) {
+export default function PropertyReviews({ propertyId, sellerId, isSold = false, onStatsUpdated }) {
   const { user } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [summary, setSummary] = useState({
@@ -88,6 +88,11 @@ export default function PropertyReviews({ propertyId, sellerId, onStatsUpdated }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSold) {
+      toast.error("Reviewing sold-out properties is disabled");
+      return;
+    }
+
     if (!user) {
       toast.error("Please log in to submit a review");
       return;
@@ -223,7 +228,12 @@ export default function PropertyReviews({ propertyId, sellerId, onStatsUpdated }
 
       {/* Review Submission Form / Status Banner */}
       <div>
-        {!user ? (
+        {isSold ? (
+          <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-3">
+            <HiExclamationCircle className="w-5 h-5 text-red-400 shrink-0" />
+            <span>This property is Sold Out. Adding new ratings & reviews is closed.</span>
+          </div>
+        ) : !user ? (
           <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center space-y-3">
             <div className="flex items-center justify-center gap-2 text-amber-400 font-semibold text-sm">
               <HiExclamationCircle className="w-5 h-5" />

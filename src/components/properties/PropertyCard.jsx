@@ -66,11 +66,15 @@ export default function PropertyCard({ property }) {
   );
   const activeRating = property.averageRating || property.rating || 0;
 
+  const isSold = property.status?.toLowerCase() === "sold";
+
   return (
     <motion.div
       whileHover={{ y: -6 }}
       transition={{ duration: 0.25 }}
-      className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col group h-full"
+      className={`bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col group h-full relative ${
+        isSold ? "opacity-90" : ""
+      }`}
     >
       {/* Property Image Container */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--bg-card-subtle)]">
@@ -80,8 +84,17 @@ export default function PropertyCard({ property }) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
 
+        {/* Sold Out Dark Overlay Badge */}
+        {isSold && (
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] flex items-center justify-center z-10">
+            <span className="bg-gradient-to-r from-red-600 to-rose-600 text-white font-black text-xs uppercase tracking-widest px-4 py-1.5 rounded-xl shadow-2xl border border-red-400/40 transform -rotate-3">
+              🔴 SOLD OUT
+            </span>
+          </div>
+        )}
+
         {/* Top Badges */}
-        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
+        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none z-20">
           <span className="text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-md text-white border border-white/20">
             {property.type || "Luxury"}
           </span>
@@ -102,7 +115,7 @@ export default function PropertyCard({ property }) {
         </div>
 
         {/* Bottom Rating Pill */}
-        <div className="absolute bottom-3.5 left-3.5 flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md text-amber-400">
+        <div className="absolute bottom-3.5 left-3.5 flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md text-amber-400 z-20">
           <HiStar className="w-4 h-4 fill-amber-400 text-amber-400" />
           <span>{hasReviews ? Number(activeRating).toFixed(1) : "New"}</span>
           {hasReviews && property.reviewCount > 0 && (
