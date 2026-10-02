@@ -310,8 +310,12 @@ export default function PropertyDetailsPage({ params }) {
               </span>
               <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-500 flex items-center gap-1.5">
                 <HiStar className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span>{property.averageRating || property.rating || "0.0"}</span>
-                {property.reviewCount !== undefined && (
+                <span>
+                  {property.reviewCount > 0 && (property.averageRating > 0 || property.rating > 0)
+                    ? Number(property.averageRating || property.rating).toFixed(1)
+                    : "New"}
+                </span>
+                {property.reviewCount > 0 && (
                   <span className="text-[10px] text-amber-300 font-medium">({property.reviewCount})</span>
                 )}
               </span>
