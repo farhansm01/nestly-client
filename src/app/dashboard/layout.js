@@ -28,7 +28,10 @@ export default function DashboardLayout({ children }) {
   const { user } = useAuth();
   const { theme, toggleTheme, mounted } = useTheme();
 
-  const userRole = user?.role || "user";
+  const userRole = (
+    user?.role ||
+    (user?.email?.toLowerCase().includes("admin") ? "admin" : "user")
+  ).toLowerCase();
 
   const handleLogout = async () => {
     try {
